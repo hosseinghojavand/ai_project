@@ -10,61 +10,38 @@ import java.util.*;
 
 public class Agent extends BaseAgent {
 
-    private final Scanner scanner = new Scanner(System.in);
-
-    private Stack<Node> route = new Stack<>();
-    private Stack<Action> route2 = new Stack<>();
-
-    Queue<Node> frontier = new LinkedList<>();
+    private int HOME = 1 , DIAMOND = 2;
 
 
-    List<Node> explored_set = new ArrayList<>();
+    private Stack<Action> actions = new Stack<>();
+    private Queue<Node> frontier = new LinkedList<>();
+    private List<Node> explored_set = new ArrayList<>();
 
     public Agent() throws IOException {
         super();
-
     }
 
     @Override
     public Action doTurn(TurnData turnData) {
 
 
+        //finds diamond place
         if (turnData.turnsLeft == maxTurns)
-        {
-           find_route(turnData);
-        }
+           find_route(turnData , DIAMOND);
 
-        while (!route2.isEmpty())
-            return route2.pop();
+        while (!actions.isEmpty())
+            return actions.pop();
 
+        //finds home
+        find_route(turnData , HOME);
+
+        while (!actions.isEmpty())
+            return actions.pop();
+
+
+        //just to return sth
         return Action.values()[(int) (Math.random() * Action.values().length)];
 
-        //pop  => action
-
-
-        /*System.out.println("TURN " + (maxTurns - turnData.turnsLeft) + "/" + maxTurns);
-        for (AgentData agent : turnData.agentData) {
-            System.out.println("AGENT " + agent.name);
-            System.out.println("POSITION: (" + agent.position.row + ", " + agent.position.column + ")");
-            System.out.println("CARRYING: " + agent.carrying);
-            System.out.println("COLLECTED: " + Arrays.toString(agent.collected));
-        }
-        for (int i = 0; i < gridSize; i++) {
-            for (int j = 0; j < gridSize; j++)
-                System.out.print(turnData.map[i][j]);
-            System.out.println();
-        }
-        System.out.print("> ");
-        String actionName = scanner.next().toUpperCase();
-        if (actionName.equals("U"))
-            return Action.UP;
-        if (actionName.equals("D"))
-            return Action.DOWN;
-        if (actionName.equals("L"))
-            return Action.LEFT;
-        if (actionName.equals("R"))
-            return Action.RIGHT;
-        return Action.values()[(int) (Math.random() * Action.values().length)];*/
     }
 
 
@@ -114,19 +91,22 @@ public class Agent extends BaseAgent {
         Node node1 = node;
         while (node1!=null)
         {
-            //System.out.println(node1.row + "-" + node1.column);
             if (node1.parent!=null)
-                route2.add(find_action_to_parent(node1));
+                actions.add(find_action_to_parent(node1));
             node1 = node1.parent;
         }
 
 
     }
-    private boolean find_route(TurnData turnData)
+    private boolean find_route(TurnData turnData , int mode)
     {
-        int grid_size = turnData.map.length;
 
-        System.out.println(turnData.map[0][4]);
+        actions = new Stack<>();
+        frontier = new LinkedList<>();
+        explored_set = new ArrayList<>();
+
+
+        int grid_size = turnData.map.length;
         AgentData agent = turnData.agentData[0];
         Node first_node = new Node(agent.position.row,agent.position.column);
         frontier.add(first_node);
@@ -146,8 +126,7 @@ public class Agent extends BaseAgent {
                         expanded_node = new Node(node.row + 1, node.column);
                         expanded_node.parent = node;
                         expanded_node.data = turnData.map[node.row + 1][node.column];
-                        if (is_goal(expanded_node)) {
-                            System.out.println("reached");
+                        if (is_goal(expanded_node , mode)) {
                             print_path(expanded_node);
                             return true;
 
@@ -161,9 +140,8 @@ public class Agent extends BaseAgent {
                         expanded_node = new Node(node.row - 1, node.column);
                         expanded_node.parent = node;
                         expanded_node.data = turnData.map[node.row - 1][node.column];
-                        if (is_goal(expanded_node)) {
-                            System.out.println("reached");
-                            print_path(expanded_node);
+                        if (is_goal(expanded_node , mode)) {
+                            print_path(expanded_node );
                             return true;
                         } else {
                             frontier.add(expanded_node);
@@ -175,9 +153,8 @@ public class Agent extends BaseAgent {
                         expanded_node = new Node(node.row, node.column + 1);
                         expanded_node.parent = node;
                         expanded_node.data = turnData.map[node.row][node.column + 1];
-                        if (is_goal(expanded_node)) {
-                            System.out.println("reached");
-                            print_path(expanded_node);
+                        if (is_goal(expanded_node ,mode)) {
+                            print_path(expanded_node );
                             return true;
                         } else {
                             frontier.add(expanded_node);
@@ -189,9 +166,8 @@ public class Agent extends BaseAgent {
                         expanded_node = new Node(node.row, node.column - 1);
                         expanded_node.parent = node;
                         expanded_node.data = turnData.map[node.row][node.column - 1];
-                        if (is_goal(expanded_node)) {
-                            System.out.println("reached");
-                            print_path(expanded_node);
+                        if (is_goal(expanded_node , mode)) {
+                            print_path(expanded_node );
                             return true;
                         } else {
                             frontier.add(expanded_node);
@@ -199,21 +175,24 @@ public class Agent extends BaseAgent {
                     }
                 }
             }
-            else
-            {
-                //drops it and goes on
-            }
+            /*
+            else drops it and goes on
+             */
         }
         return false;
     }
 
-    private boolean is_goal(Node node)
+    private boolean is_goal(Node node , int mode)
     {
-        return  node.data == '0' ||
-                node.data == '1' ||
-                node.data == '2' ||
-                node.data == '3' ||
-                node.data == '4';
+        if (mode == DIAMOND)
+            return node.data == '0' ||
+                    node.data == '1' ||
+                    node.data == '2' ||
+                    node.data == '3' ||
+                    node.data == '4';
+
+        return node.data == 'a';
+
     }
 
 
