@@ -4,6 +4,7 @@ public class Node {
     public int row = 0;
     public int column = 0;
     public char data;
+    public Node parent = null;
 
     public Node(int row , int column)
     {
