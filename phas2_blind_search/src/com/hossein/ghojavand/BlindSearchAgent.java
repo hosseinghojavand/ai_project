@@ -6,7 +6,6 @@ import com.hossein.ghojavand.base.BaseAgent;
 import com.hossein.ghojavand.base.TurnData;
 
 import java.io.IOException;
-import java.sql.Time;
 import java.util.*;
 
 public class BlindSearchAgent extends BaseAgent {

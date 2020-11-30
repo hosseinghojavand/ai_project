@@ -1,5 +1,5 @@
 package com.hossein.ghojavand;
-//InformedSearchAgent
+
 
 import com.hossein.ghojavand.base.Action;
 import com.hossein.ghojavand.base.AgentData;
