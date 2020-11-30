@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.sql.Time;
 import java.util.*;
 
-public class Agent extends BaseAgent {
+public class BlindSearchAgent extends BaseAgent {
 
     private int HOME = 1 , DIAMOND = 2;
 
@@ -34,7 +34,7 @@ public class Agent extends BaseAgent {
 
     int mode = DIAMOND;
 
-    public Agent() throws IOException {
+    public BlindSearchAgent() throws IOException {
         super();
     }
 
