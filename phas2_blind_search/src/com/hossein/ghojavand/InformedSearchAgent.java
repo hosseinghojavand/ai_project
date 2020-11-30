@@ -45,30 +45,50 @@ public class InformedSearchAgent extends BaseAgent {
 
     private Action make_rand_action(TurnData turnData)
     {
-        AgentData agentData = turnData.agentData[0];
-        if (agentData.position.column+1 <gridSize)
-        {
-            if(turnData.map[agentData.position.row][agentData.position.column+1] == '*')
-                return Action.RIGHT;
-        }
-        if (agentData.position.column-1 >=0)
-        {
-            if(turnData.map[agentData.position.row][agentData.position.column-1] == '*')
-                return Action.LEFT;
-        }
-        if (agentData.position.row +1 <gridSize)
-        {
-            if(turnData.map[agentData.position.row+1][agentData.position.column] == '*')
-                return Action.DOWN;
-        }
-        if (agentData.position.row-1 >=0)
-        {
-            if(turnData.map[agentData.position.row-1][agentData.position.column] == '*')
-                return Action.UP;
-        }
 
-        has_rand_action = true;
-        return Action.RIGHT;
+        if (has_rand_action)
+        {
+            has_rand_action = false;
+            return Action.LEFT;
+        }
+        else {
+            AgentData agentData = turnData.agentData[0];
+            if (agentData.position.column + 1 < gridSize) {
+                if (turnData.map[agentData.position.row][agentData.position.column + 1] == '*')
+                    return Action.RIGHT;
+            }
+            else
+            {
+                return Action.RIGHT;
+            }
+            if (agentData.position.column - 1 >= 0) {
+                if (turnData.map[agentData.position.row][agentData.position.column - 1] == '*')
+                    return Action.LEFT;
+            }
+            else
+            {
+                return Action.LEFT;
+            }
+            if (agentData.position.row + 1 < gridSize) {
+                if (turnData.map[agentData.position.row + 1][agentData.position.column] == '*')
+                    return Action.DOWN;
+            }
+            else
+            {
+                return Action.DOWN;
+            }
+            if (agentData.position.row - 1 >= 0) {
+                if (turnData.map[agentData.position.row - 1][agentData.position.column] == '*')
+                    return Action.UP;
+            }
+            else
+            {
+                return Action.UP;
+            }
+
+            has_rand_action = true;
+            return Action.RIGHT;
+        }
 
 
     }
@@ -158,6 +178,7 @@ public class InformedSearchAgent extends BaseAgent {
 
                 while (!time_out_happend)
                 {
+                    System.out.print("");
                     if (is_diamond_found)
                     {
                         timer.cancel();
@@ -220,6 +241,7 @@ public class InformedSearchAgent extends BaseAgent {
 
                 while (!time_out_happend)
                 {
+                    System.out.print("");
                     if (is_diamond_found)
                     {
                         timer.cancel();

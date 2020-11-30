@@ -15,6 +15,7 @@ public class Main {
 
             //choose which agent will run
 
+            //String winner = new Agent2().play();
             //String winner = new BlindSearchAgent().play();
             String winner = new InformedSearchAgent().play();
 
