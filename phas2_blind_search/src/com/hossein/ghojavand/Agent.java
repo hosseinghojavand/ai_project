@@ -6,6 +6,7 @@ import com.hossein.ghojavand.base.BaseAgent;
 import com.hossein.ghojavand.base.TurnData;
 
 import java.io.IOException;
+import java.sql.Time;
 import java.util.*;
 
 public class Agent extends BaseAgent {
@@ -17,30 +18,119 @@ public class Agent extends BaseAgent {
     private Queue<Node> frontier = new LinkedList<>();
     private List<Node> explored_set = new ArrayList<>();
 
+    private boolean is_home_found = false;
+
+    private long  algo_start_time;
+    private  int desicion_time_limit;
+
+    private boolean is_algo_completed =false;
+    private boolean time_out_happend = false;
+
+    private boolean is_data_reset = false;
+
+    private boolean has_rand_action =false;
+
+
+    private String action = "";
+
+    boolean is_diamond_found = false;
+    int mode = DIAMOND;
+
     public Agent() throws IOException {
         super();
     }
 
+
     @Override
     public Action doTurn(TurnData turnData) {
 
-
-        //finds diamond place
+        time_out_happend = false;
+        desicion_time_limit =(int)(decisionTimeLimit * 1000);
+        desicion_time_limit -=10;
         if (turnData.turnsLeft == maxTurns)
-           find_route(turnData , DIAMOND);
-
-        while (!actions.isEmpty())
-            return actions.pop();
-
-        //finds home
-        find_route(turnData , HOME);
-
-        while (!actions.isEmpty())
-            return actions.pop();
+        {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    find_route(turnData, DIAMOND);
+                }
+            }).start();
+        }
 
 
-        //just to return sth
-        return Action.values()[(int) (Math.random() * Action.values().length)];
+        if (mode == DIAMOND) {
+            if (is_diamond_found) {
+                if (!has_rand_action) {
+                    if (!actions.isEmpty()) {
+                        return actions.pop();
+                    } else
+                    {
+                        mode = HOME;
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                find_route(turnData, HOME);
+                            }
+                        }).start();
+                        return make_rand_action(turnData);
+                    }
+                } else {
+                    has_rand_action = false;
+                    return Action.LEFT;
+
+                }
+
+            } else {
+                Timer timer = new Timer();
+                timer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        time_out_happend = true;
+                        System.out.println("time out happend");
+                        timer.cancel();
+                    }
+                }, desicion_time_limit);
+
+                while (!time_out_happend) {
+                    System.out.print("");
+                }
+                return make_rand_action(turnData);
+
+            }
+        }
+        else
+        {
+            if (is_home_found) {
+                if (has_rand_action) {
+                    has_rand_action = false;
+                    return Action.LEFT;
+                } else {
+                    if (!actions.isEmpty()) {
+                        return actions.pop();
+                    } else
+                        System.out.println("nang bar to bad");
+                }
+
+            } else {
+                Timer timer = new Timer();
+                timer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        time_out_happend = true;
+                        System.out.println("time out happend");
+                        timer.cancel();
+                    }
+                }, desicion_time_limit);
+
+                while (!time_out_happend) {
+                    System.out.print("");
+                }
+                return make_rand_action(turnData);
+
+            }
+        }
+
+        return make_rand_action(turnData);
 
     }
 
@@ -86,7 +176,7 @@ public class Agent extends BaseAgent {
         }
     }
 
-    private void print_path(Node node)
+    private void fill_actions(Node node)
     {
         Node node1 = node;
         while (node1!=null)
@@ -95,11 +185,13 @@ public class Agent extends BaseAgent {
                 actions.add(find_action_to_parent(node1));
             node1 = node1.parent;
         }
-
-
     }
+
+
     private boolean find_route(TurnData turnData , int mode)
     {
+
+
 
         actions = new Stack<>();
         frontier = new LinkedList<>();
@@ -107,11 +199,20 @@ public class Agent extends BaseAgent {
 
 
         int grid_size = turnData.map.length;
-        AgentData agent = turnData.agentData[0];
-        Node first_node = new Node(agent.position.row,agent.position.column);
-        frontier.add(first_node);
+        if (frontier.isEmpty()) {
+            AgentData agent = turnData.agentData[0];
+            Node first_node = new Node(agent.position.row, agent.position.column);
+            frontier.add(first_node);
+        }
 
         while (!frontier.isEmpty()) {
+
+            /*if (new Date().getTime() - algo_start_time >= desicion_time_limit - 15)
+            {
+                time_out_happend = true;
+                return false;
+            }*/
+
             Node node = frontier.poll();
 
             //changed algorithm here
@@ -127,7 +228,13 @@ public class Agent extends BaseAgent {
                         expanded_node.parent = node;
                         expanded_node.data = turnData.map[node.row + 1][node.column];
                         if (is_goal(expanded_node , mode)) {
-                            print_path(expanded_node);
+                            fill_actions(expanded_node);
+
+                            if (mode == HOME)
+                                is_home_found = true;
+                            else
+                                is_diamond_found = true;
+
                             return true;
 
                         } else {
@@ -141,7 +248,11 @@ public class Agent extends BaseAgent {
                         expanded_node.parent = node;
                         expanded_node.data = turnData.map[node.row - 1][node.column];
                         if (is_goal(expanded_node , mode)) {
-                            print_path(expanded_node );
+                            fill_actions(expanded_node );
+                            if (mode == HOME)
+                                is_home_found = true;
+                            else
+                                is_diamond_found = true;
                             return true;
                         } else {
                             frontier.add(expanded_node);
@@ -154,7 +265,11 @@ public class Agent extends BaseAgent {
                         expanded_node.parent = node;
                         expanded_node.data = turnData.map[node.row][node.column + 1];
                         if (is_goal(expanded_node ,mode)) {
-                            print_path(expanded_node );
+                            fill_actions(expanded_node );
+                            if (mode == HOME)
+                                is_home_found = true;
+                            else
+                                is_diamond_found = true;
                             return true;
                         } else {
                             frontier.add(expanded_node);
@@ -167,19 +282,56 @@ public class Agent extends BaseAgent {
                         expanded_node.parent = node;
                         expanded_node.data = turnData.map[node.row][node.column - 1];
                         if (is_goal(expanded_node , mode)) {
-                            print_path(expanded_node );
+                            fill_actions(expanded_node );
+                            if (mode == HOME)
+                                is_home_found = true;
+                            else
+                                is_diamond_found = true;
                             return true;
                         } else {
                             frontier.add(expanded_node);
                         }
                     }
                 }
+
+
             }
             /*
             else drops it and goes on
              */
         }
         return false;
+    }
+
+
+    private Action make_rand_action(TurnData turnData)
+    {
+        AgentData agentData = turnData.agentData[0];
+        if (agentData.position.column+1 <gridSize)
+        {
+            if(turnData.map[agentData.position.row][agentData.position.column+1] == '*')
+                return Action.RIGHT;
+        }
+        if (agentData.position.column-1 >=0)
+        {
+            if(turnData.map[agentData.position.row][agentData.position.column-1] == '*')
+                return Action.LEFT;
+        }
+        if (agentData.position.row +1 <gridSize)
+        {
+            if(turnData.map[agentData.position.row+1][agentData.position.column] == '*')
+                return Action.DOWN;
+        }
+        if (agentData.position.row-1 >=0)
+        {
+            if(turnData.map[agentData.position.row-1][agentData.position.column-1] == '*')
+                return Action.UP;
+        }
+
+        has_rand_action = true;
+        return Action.RIGHT;
+
+
     }
 
     private boolean is_goal(Node node , int mode)

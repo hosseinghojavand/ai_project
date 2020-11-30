@@ -6,6 +6,9 @@ public class Node {
     public char data;
     public Node parent = null;
 
+    public int hoop;
+    public int distance_to_goal;
+
     public Node(int row , int column)
     {
         this.row = row;
