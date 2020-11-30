@@ -15,6 +15,9 @@ public class InformedSearchAgent extends BaseAgent {
     private int HOME = 1 , DIAMOND = 2;
 
     int Goal_ROW,Goal_COLUMN;
+    private boolean has_rand_action =false;
+    private  int desicion_time_limit;
+    private boolean time_out_happend = false;
 
     private Stack<Action> actions = new Stack<>();
     private Queue<Node> frontier = new LinkedList<>();
@@ -22,6 +25,8 @@ public class InformedSearchAgent extends BaseAgent {
 
     private boolean is_home_found = false;
     private boolean is_diamond_found = false;
+
+    int mode = DIAMOND;
 
     public InformedSearchAgent() throws IOException {
         super();
@@ -38,6 +43,36 @@ public class InformedSearchAgent extends BaseAgent {
         return diamonds;
     }
 
+    private Action make_rand_action(TurnData turnData)
+    {
+        AgentData agentData = turnData.agentData[0];
+        if (agentData.position.column+1 <gridSize)
+        {
+            if(turnData.map[agentData.position.row][agentData.position.column+1] == '*')
+                return Action.RIGHT;
+        }
+        if (agentData.position.column-1 >=0)
+        {
+            if(turnData.map[agentData.position.row][agentData.position.column-1] == '*')
+                return Action.LEFT;
+        }
+        if (agentData.position.row +1 <gridSize)
+        {
+            if(turnData.map[agentData.position.row+1][agentData.position.column] == '*')
+                return Action.DOWN;
+        }
+        if (agentData.position.row-1 >=0)
+        {
+            if(turnData.map[agentData.position.row-1][agentData.position.column] == '*')
+                return Action.UP;
+        }
+
+        has_rand_action = true;
+        return Action.RIGHT;
+
+
+    }
+
     private Map<Integer,Integer> homeFinder(char[][] map)
     {
         Map<Integer,Integer> homes = new HashMap<>();
@@ -52,9 +87,11 @@ public class InformedSearchAgent extends BaseAgent {
     @Override
     public Action doTurn(TurnData turnData) {
 
+        time_out_happend = false;
+        desicion_time_limit =(int)(decisionTimeLimit * 1000);
+        desicion_time_limit -=10;
 
-
-        /*if (turnData.turnsLeft == maxTurns)
+        if (turnData.turnsLeft == maxTurns)
         {
             new Thread(new Runnable() {
                 @Override
@@ -69,50 +106,157 @@ public class InformedSearchAgent extends BaseAgent {
                     find_route(turnData, DIAMOND);
                 }
             }).start();
-        }*/
-
-
-        if (turnData.turnsLeft == maxTurns) {
-
-            // find diamond indexes
-            Map<Integer, Integer> diamonds = DiamondFinder(turnData.map);
-            for (Map.Entry<Integer, Integer> entry : diamonds.entrySet()) {
-                Goal_ROW = entry.getKey();
-                Goal_COLUMN = entry.getValue();
-            }
-
-            find_route(turnData, DIAMOND);
-
         }
 
+        if (mode == DIAMOND)
+        {
+            if (is_diamond_found)
+            {
+                if (!has_rand_action)
+                {
+                    if (!actions.isEmpty()) {
+                        return actions.pop();
+                    } else
+                    {
+                        mode = HOME;
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Map<Integer,Integer> homes = homeFinder(turnData.map);
+                                int min=Integer.MAX_VALUE;
+                                for(Map.Entry<Integer,Integer> entry : homes.entrySet())
+                                    if(Math.abs(turnData.agentData[0].position.row - entry.getKey()) +
+                                            Math.abs(turnData.agentData[0].position.column - entry.getValue()) < min ) {
+                                        Goal_ROW = entry.getKey();
+                                        Goal_COLUMN=entry.getValue();
+                                    }
 
+                                find_route(turnData , HOME);
+                            }
+                        }).start();
+                        return make_rand_action(turnData);
+                    }
+                }
+                else {
+                    has_rand_action = false;
+                    return Action.LEFT;
 
+                }
 
-
-        while (!actions.isEmpty())
-            return actions.pop();
-
-        //find the closest home
-        Map<Integer,Integer> homes = homeFinder(turnData.map);
-        int min=Integer.MAX_VALUE;
-        for(Map.Entry<Integer,Integer> entry : homes.entrySet())
-            if(Math.abs(turnData.agentData[0].position.row - entry.getKey()) +
-                    Math.abs(turnData.agentData[0].position.column - entry.getValue()) < min ) {
-                Goal_ROW = entry.getKey();
-                Goal_COLUMN=entry.getValue();
             }
+            else {
+                Timer timer = new Timer();
+                timer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        time_out_happend = true;
+                        //System.out.println("time out happend");
+                        timer.cancel();
+                    }
+                }, desicion_time_limit);
 
-        //finds home
-        find_route(turnData , HOME);
 
-        while (!actions.isEmpty())
-            return actions.pop();
+                while (!time_out_happend)
+                {
+                    if (is_diamond_found)
+                    {
+                        timer.cancel();
+                        break;
+                    }
+                }
+                if (is_diamond_found)
+                {
+                    if (!has_rand_action)
+                    {
+                        if (!actions.isEmpty()) {
+                            return actions.pop();
+                        } else
+                        {
+                            mode = HOME;
+                            new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    find_route(turnData, HOME);
+                                }
+                            }).start();
+                            return make_rand_action(turnData);
+                        }
+                    }
+                    else {
+                        has_rand_action = false;
+                        return Action.LEFT;
+
+                    }
+                }
+                else
+                    return make_rand_action(turnData);
+
+            }
+        }
+        else
+        {
+            if (is_home_found) {
+                if (!has_rand_action) {
+                    if (!actions.isEmpty()) {
+                        return actions.pop();
+                    } else
+                        System.out.println("algo finished");
+                } else {
+                    has_rand_action = false;
+                    return Action.LEFT;
+                }
+
+            } else {
+                Timer timer = new Timer();
+                timer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        time_out_happend = true;
+                        //System.out.println("time out happend");
+                        timer.cancel();
+                    }
+                }, desicion_time_limit);
+
+
+                while (!time_out_happend)
+                {
+                    if (is_diamond_found)
+                    {
+                        timer.cancel();
+                        break;
+                    }
+                }
+                if (is_diamond_found)
+                {
+                    if (!has_rand_action) {
+                        if (!actions.isEmpty()) {
+                            return actions.pop();
+                        } else
+                            System.out.println("algo finished");
+                    } else {
+                        has_rand_action = false;
+                        return Action.LEFT;
+                    }
+                }
+                else
+                    return make_rand_action(turnData);
+
+            }
+        }
+
+        return make_rand_action(turnData);
 
 
 
 
-        //just to return sth
-        return Action.values()[(int) (Math.random() * Action.values().length)];
+
+
+
+
+
+
+
+
 
     }
 

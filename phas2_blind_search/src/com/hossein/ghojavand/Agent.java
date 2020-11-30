@@ -21,18 +21,15 @@ public class Agent extends BaseAgent {
     private boolean is_home_found = false;
     private boolean is_diamond_found = false;
 
-    private long  algo_start_time;
+
     private  int desicion_time_limit;
 
-    private boolean is_algo_completed =false;
     private boolean time_out_happend = false;
 
-    private boolean is_data_reset = false;
 
     private boolean has_rand_action =false;
 
 
-    private String action = "";
 
 
     int mode = DIAMOND;
