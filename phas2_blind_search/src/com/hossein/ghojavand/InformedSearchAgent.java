@@ -1,10 +1,11 @@
 package com.hossein.ghojavand;
-
+//InformedSearchAgent
 
 import com.hossein.ghojavand.base.Action;
 import com.hossein.ghojavand.base.AgentData;
 import com.hossein.ghojavand.base.BaseAgent;
 import com.hossein.ghojavand.base.TurnData;
+
 import java.io.IOException;
 import java.util.*;
 
@@ -15,25 +16,26 @@ public class InformedSearchAgent extends BaseAgent {
 
     int Goal_ROW,Goal_COLUMN;
 
-
-
-
     private Stack<Action> actions = new Stack<>();
     private Queue<Node> frontier = new LinkedList<>();
     private List<Node> explored_set = new ArrayList<>();
+
+    private boolean is_home_found = false;
+    private boolean is_diamond_found = false;
 
     public InformedSearchAgent() throws IOException {
         super();
     }
 
-    private int[] DiamondFinder(char[][] map) {
+    private Map<Integer,Integer> DiamondFinder(char[][] map) {
 
+        Map<Integer,Integer> diamonds = new HashMap<>();
         for(int i=0;i< map.length;i++ )
             for(int j=0; j< map.length;j++)
                 if(map[i][j] == '0'||map[i][j] == '1'||map[i][j] == '2'||map[i][j] == '3'||map[i][j] == '4')
-                    return new int[]{i,j};
+                    diamonds.put(i,j);
 
-        return new int[]{-1,-1};
+        return diamonds;
     }
 
     private Map<Integer,Integer> homeFinder(char[][] map)
@@ -51,18 +53,39 @@ public class InformedSearchAgent extends BaseAgent {
     public Action doTurn(TurnData turnData) {
 
 
-        // find diamond indexes
-        int[] indexes  = DiamondFinder(turnData.map);
-        Goal_ROW = indexes[0];  Goal_COLUMN= indexes[1];
 
-
-        //finds diamond path
-        if (turnData.turnsLeft == maxTurns)
+        /*if (turnData.turnsLeft == maxTurns)
         {
-            long t1 = new Date().getTime();
-            find_route(turnData , DIAMOND);
-            System.out.println("algo time = " +(new Date().getTime() -t1));
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    // find diamond indexes
+                    Map<Integer,Integer> diamonds = DiamondFinder(turnData.map);
+                    for(Map.Entry<Integer,Integer> entry : diamonds.entrySet()){
+                        Goal_ROW = entry.getKey();
+                        Goal_COLUMN=entry.getValue();
+                    }
+
+                    find_route(turnData, DIAMOND);
+                }
+            }).start();
+        }*/
+
+
+        if (turnData.turnsLeft == maxTurns) {
+
+            // find diamond indexes
+            Map<Integer, Integer> diamonds = DiamondFinder(turnData.map);
+            for (Map.Entry<Integer, Integer> entry : diamonds.entrySet()) {
+                Goal_ROW = entry.getKey();
+                Goal_COLUMN = entry.getValue();
+            }
+
+            find_route(turnData, DIAMOND);
+
         }
+
+
 
 
 
@@ -84,6 +107,8 @@ public class InformedSearchAgent extends BaseAgent {
 
         while (!actions.isEmpty())
             return actions.pop();
+
+
 
 
         //just to return sth
@@ -133,13 +158,8 @@ public class InformedSearchAgent extends BaseAgent {
         }
     }
 
-    private void print_path(Node node)
+    private void fill_actions(Node node)
     {
-        for( Node node2 : explored_set){
-
-            System.out.println("["+ node2.row+","+node2.column+"]  hoop:"+node2.hoop +"\n/////////////////////////////");
-        }
-
         Node node1 = node;
         while (node1!=null)
         {
@@ -187,11 +207,16 @@ public class InformedSearchAgent extends BaseAgent {
                         expanded_node.hoop=expanded_node.parent.hoop+1;
                         expanded_node.data = turnData.map[node.row + 1][node.column];
                         if (is_goal(expanded_node , mode)) {
-                            print_path(expanded_node);
+                            fill_actions(expanded_node);
+                            if (mode == HOME)
+                                is_home_found = true;
+                            else
+                                is_diamond_found = true;
                             return true;
 
                         } else {
                             frontier.add(expanded_node);
+                            //addToFrontier(e);
                         }
                     }
                 }
@@ -203,7 +228,11 @@ public class InformedSearchAgent extends BaseAgent {
                         expanded_node.hoop=expanded_node.parent.hoop+1;
                         expanded_node.data = turnData.map[node.row - 1][node.column];
                         if (is_goal(expanded_node , mode)) {
-                            print_path(expanded_node );
+                            fill_actions(expanded_node );
+                            if (mode == HOME)
+                                is_home_found = true;
+                            else
+                                is_diamond_found = true;
                             return true;
                         } else {
                             frontier.add(expanded_node);
@@ -218,7 +247,11 @@ public class InformedSearchAgent extends BaseAgent {
                         expanded_node.hoop=expanded_node.parent.hoop+1;
                         expanded_node.data = turnData.map[node.row][node.column + 1];
                         if (is_goal(expanded_node ,mode)) {
-                            print_path(expanded_node );
+                            fill_actions(expanded_node );
+                            if (mode == HOME)
+                                is_home_found = true;
+                            else
+                                is_diamond_found = true;
                             return true;
                         } else {
                             frontier.add(expanded_node);
@@ -233,7 +266,11 @@ public class InformedSearchAgent extends BaseAgent {
                         expanded_node.hoop=expanded_node.parent.hoop+1;
                         expanded_node.data = turnData.map[node.row][node.column - 1];
                         if (is_goal(expanded_node , mode)) {
-                            print_path(expanded_node );
+                            fill_actions(expanded_node );
+                            if (mode == HOME)
+                                is_home_found = true;
+                            else
+                                is_diamond_found = true;
                             return true;
                         } else {
                             frontier.add(expanded_node);
@@ -245,70 +282,72 @@ public class InformedSearchAgent extends BaseAgent {
             else drops it and goes on
              */
 
-            frontier = sortFrontier(frontier);
+            frontier = sortFrontier();
 
-
+            // addFrontier(node);
 
         }
         return false;
     }
 
-    private LinkedList<Node> sortFrontier(Queue<Node> frontier) {
+    private LinkedList<Node> sortFrontier() {
 
         Node[] array;
         array= frontier.toArray(new Node[frontier.size()]);
 
-        for (int i = 0; i < frontier.size()-1; i++)
-            for (int j = 0; j < frontier.size()-i-1; j++) {
-                if (array[j].distance_to_goal + array[j].hoop >
-                        array[j + 1].distance_to_goal + array[j + 1].hoop) {
-                    // swap
-                    Node temp = array[j];
-                    array[j] = array[j + 1];
-                    array[j + 1] = temp;
-                }
-                else if(array[j].distance_to_goal + array[j].hoop ==
-                        array[j + 1].distance_to_goal + array[j + 1].hoop && array[j].distance_to_goal>array[j+1].distance_to_goal)
-                {
-                    Node temp = array[j];
-                    array[j] = array[j + 1];
-                    array[j + 1] = temp;
-                }
-
+        Node min = array[0];
+        int min_index = 0;
+        for (int i=0 ; i<frontier.size();i++)
+        {
+            if(array[i].distance_to_goal+array[i].hoop < min.distance_to_goal+min.hoop) {
+                min = array[i];
+                min_index = i;
             }
+            else if(array[i].distance_to_goal + array[i].hoop ==
+                    min.distance_to_goal+min.hoop && array[i].distance_to_goal<min.distance_to_goal)
+            {
+                min=array[i];
+                min_index=i;
+            }
+        }
 
-
-        //  System.out.println("["+array[0].row+","+array[0].column+"]" + (array[0].distance_to_goal-array[0].hoop));
+        Node tmp = array[0];
+        array[0] = array[min_index];
+        array[min_index] = tmp;
 
         return new LinkedList<Node>(Arrays.asList(array));
 
 
+//        Node[] array;
+//        array= frontier.toArray(new Node[frontier.size()]);
+//
+//            for (int i = 0; i < frontier.size()-1; i++)
+//                for (int j = 0; j < frontier.size()-i-1; j++) {
+//                    if (array[j].distance_to_goal + array[j].hoop >
+//                            array[j + 1].distance_to_goal + array[j + 1].hoop) {
+//                        // swap
+//                        Node temp = array[j];
+//                        array[j] = array[j + 1];
+//                        array[j + 1] = temp;
+//                    }
+//                    else if(array[j].distance_to_goal + array[j].hoop ==
+//                            array[j + 1].distance_to_goal + array[j + 1].hoop && array[j].distance_to_goal>array[j+1].distance_to_goal)
+//                    {
+//                        Node temp = array[j];
+//                        array[j] = array[j + 1];
+//                        array[j + 1] = temp;
+//                    }
+//
+//                }
+//
+//
+//      //  System.out.println("["+array[0].row+","+array[0].column+"]" + (array[0].distance_to_goal-array[0].hoop));
+//
+//        return new LinkedList<Node>(Arrays.asList(array));
+
 
     }
 
-    public Comparator<Node> nodeComparator()
-    {
-
-        return new Comparator<Node>() {
-            @Override
-            public int compare(Node node1, Node node2) {
-
-                if(Math.abs(node1.row-Goal_ROW)+Math.abs(node1.column-Goal_COLUMN)  + node1.row+node1.column  ==
-                        Math.abs(node2.row-Goal_ROW)+Math.abs(node2.column-Goal_COLUMN) + node2.row+node2.column)
-                    return 0;
-
-                else if(Math.abs(node1.row-Goal_ROW)+Math.abs(node1.column-Goal_COLUMN)  + node1.row+node1.column  >
-                        Math.abs(node2.row-Goal_ROW)+Math.abs(node2.column-Goal_COLUMN) + node2.row+node2.column)
-                    return 1;
-
-
-                return -1;
-            }
-
-
-        };
-
-    }
 
 
     private boolean is_goal(Node node , int mode)
@@ -323,6 +362,5 @@ public class InformedSearchAgent extends BaseAgent {
         return node.data == 'a';
 
     }
-
 
 }

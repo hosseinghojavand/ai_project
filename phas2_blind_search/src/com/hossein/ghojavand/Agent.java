@@ -19,6 +19,7 @@ public class Agent extends BaseAgent {
     private List<Node> explored_set = new ArrayList<>();
 
     private boolean is_home_found = false;
+    private boolean is_diamond_found = false;
 
     private long  algo_start_time;
     private  int desicion_time_limit;
@@ -33,7 +34,7 @@ public class Agent extends BaseAgent {
 
     private String action = "";
 
-    boolean is_diamond_found = false;
+
     int mode = DIAMOND;
 
     public Agent() throws IOException {
@@ -47,6 +48,7 @@ public class Agent extends BaseAgent {
         time_out_happend = false;
         desicion_time_limit =(int)(decisionTimeLimit * 1000);
         desicion_time_limit -=10;
+
         if (turnData.turnsLeft == maxTurns)
         {
             new Thread(new Runnable() {
@@ -58,9 +60,12 @@ public class Agent extends BaseAgent {
         }
 
 
-        if (mode == DIAMOND) {
-            if (is_diamond_found) {
-                if (!has_rand_action) {
+        if (mode == DIAMOND)
+        {
+            if (is_diamond_found)
+            {
+                if (!has_rand_action)
+                {
                     if (!actions.isEmpty()) {
                         return actions.pop();
                     } else
@@ -74,41 +79,74 @@ public class Agent extends BaseAgent {
                         }).start();
                         return make_rand_action(turnData);
                     }
-                } else {
+                }
+                else {
                     has_rand_action = false;
                     return Action.LEFT;
 
                 }
 
-            } else {
+            }
+            else {
                 Timer timer = new Timer();
                 timer.schedule(new TimerTask() {
                     @Override
                     public void run() {
                         time_out_happend = true;
-                        System.out.println("time out happend");
+                        //System.out.println("time out happend");
                         timer.cancel();
                     }
                 }, desicion_time_limit);
 
-                while (!time_out_happend) {
-                    System.out.print("");
+
+                while (!time_out_happend)
+                {
+                    if (is_diamond_found)
+                    {
+                        timer.cancel();
+                        break;
+                    }
                 }
-                return make_rand_action(turnData);
+                if (is_diamond_found)
+                {
+                    if (!has_rand_action)
+                    {
+                        if (!actions.isEmpty()) {
+                            return actions.pop();
+                        } else
+                        {
+                            mode = HOME;
+                            new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    find_route(turnData, HOME);
+                                }
+                            }).start();
+                            return make_rand_action(turnData);
+                        }
+                    }
+                    else {
+                        has_rand_action = false;
+                        return Action.LEFT;
+
+                    }
+                }
+                else
+                    return make_rand_action(turnData);
 
             }
         }
         else
         {
             if (is_home_found) {
-                if (has_rand_action) {
-                    has_rand_action = false;
-                    return Action.LEFT;
-                } else {
+                if (!has_rand_action) {
                     if (!actions.isEmpty()) {
                         return actions.pop();
                     } else
-                        System.out.println("nang bar to bad");
+                        System.out.println("algo finished");
+                } else {
+                    has_rand_action = false;
+                    return Action.LEFT;
                 }
 
             } else {
@@ -117,15 +155,34 @@ public class Agent extends BaseAgent {
                     @Override
                     public void run() {
                         time_out_happend = true;
-                        System.out.println("time out happend");
+                        //System.out.println("time out happend");
                         timer.cancel();
                     }
                 }, desicion_time_limit);
 
-                while (!time_out_happend) {
-                    System.out.print("");
+
+                while (!time_out_happend)
+                {
+                    if (is_diamond_found)
+                    {
+                        timer.cancel();
+                        break;
+                    }
                 }
-                return make_rand_action(turnData);
+                if (is_diamond_found)
+                {
+                    if (!has_rand_action) {
+                        if (!actions.isEmpty()) {
+                            return actions.pop();
+                        } else
+                            System.out.println("algo finished");
+                    } else {
+                        has_rand_action = false;
+                        return Action.LEFT;
+                    }
+                }
+                else
+                    return make_rand_action(turnData);
 
             }
         }
@@ -199,11 +256,10 @@ public class Agent extends BaseAgent {
 
 
         int grid_size = turnData.map.length;
-        if (frontier.isEmpty()) {
+
             AgentData agent = turnData.agentData[0];
             Node first_node = new Node(agent.position.row, agent.position.column);
             frontier.add(first_node);
-        }
 
         while (!frontier.isEmpty()) {
 
@@ -324,7 +380,7 @@ public class Agent extends BaseAgent {
         }
         if (agentData.position.row-1 >=0)
         {
-            if(turnData.map[agentData.position.row-1][agentData.position.column-1] == '*')
+            if(turnData.map[agentData.position.row-1][agentData.position.column] == '*')
                 return Action.UP;
         }
 

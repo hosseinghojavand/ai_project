@@ -1,5 +1,4 @@
 package com.hossein.ghojavand;
-
 import com.hossein.ghojavand.base.Action;
 import com.hossein.ghojavand.base.AgentData;
 import com.hossein.ghojavand.base.BaseAgent;
@@ -10,16 +9,12 @@ import java.util.*;
 
 public class Agent2 extends BaseAgent {
 
-    private int HOME = 1 , DIAMOND = 2;
+    private int HOME = 1, DIAMOND = 2;
 
 
-    //private Stack<Action> actions = new Stack<>();
-
-    private ArrayList<Action> actions = new ArrayList<>();
-
+    private Stack<Action> actions = new Stack<>();
     private Queue<Node> frontier = new LinkedList<>();
     private List<Node> explored_set = new ArrayList<>();
-    int i = 0;
 
     public Agent2() throws IOException {
         super();
@@ -29,32 +24,18 @@ public class Agent2 extends BaseAgent {
     public Action doTurn(TurnData turnData) {
 
 
-        if (i<actions.size())
-        {
-            i++;
-            return actions.get(i-1);
-        }
-
-
+        //finds diamond place
         if (turnData.turnsLeft == maxTurns)
-            find_route(turnData , DIAMOND);
+            find_route(turnData, DIAMOND);
 
-        if (i<actions.size())
-        {
-            i++;
-            return actions.get(i-1);
-        }
+        while (!actions.isEmpty())
+            return actions.pop();
 
         //finds home
+        find_route(turnData, HOME);
 
-        find_route(turnData , HOME);
-        i = 0;
-
-        if (i<actions.size())
-        {
-            i++;
-            return actions.get(i-1);
-        }
+        while (!actions.isEmpty())
+            return actions.pop();
 
 
         //just to return sth
@@ -63,10 +44,8 @@ public class Agent2 extends BaseAgent {
     }
 
 
-    private boolean is_in_explored_set(Node node)
-    {
-        for (Node node1 : explored_set)
-        {
+    private boolean is_in_explored_set(Node node) {
+        for (Node node1 : explored_set) {
             if (node1.equals(node))
                 return true;
         }
@@ -74,68 +53,54 @@ public class Agent2 extends BaseAgent {
 
     }
 
-    private Action find_action_to_parent(Node node)
-    {
-        if (node.parent.row == node.row)
-        {
-            if (node.parent.column - node.column == -1)
-            {
+    private Action find_action_to_parent(Node node) {
+        if (node.parent.row == node.row) {
+            if (node.parent.column - node.column == -1) {
                 System.out.println("right");
                 return Action.RIGHT;
-            }
-            else
-            {
+            } else {
                 System.out.println("left");
                 return Action.LEFT;
             }
-        }
-        else
-        {
-            if (node.parent.row - node.row == -1)
-            {
+        } else {
+            if (node.parent.row - node.row == -1) {
                 System.out.println("down");
                 return Action.DOWN;
-            }
-            else
-            {
+            } else {
                 System.out.println("up");
                 return Action.UP;
             }
         }
     }
 
-    private void print_path(Node node)
-    {
+    private void print_path(Node node) {
         Node node1 = node;
-        while (node1!=null)
-        {
-            if (node1.parent!=null)
+        while (node1 != null) {
+            if (node1.parent != null)
                 actions.add(find_action_to_parent(node1));
             node1 = node1.parent;
         }
 
 
     }
-    private boolean find_route(TurnData turnData , int mode)
-    {
 
-       // actions = new Stack<>();
-        actions = new ArrayList<>();
+    private boolean find_route(TurnData turnData, int mode) {
+
+        actions = new Stack<>();
         frontier = new LinkedList<>();
         explored_set = new ArrayList<>();
 
 
         int grid_size = turnData.map.length;
         AgentData agent = turnData.agentData[0];
-        Node first_node = new Node(agent.position.row,agent.position.column);
+        Node first_node = new Node(agent.position.row, agent.position.column);
         frontier.add(first_node);
 
         while (!frontier.isEmpty()) {
             Node node = frontier.poll();
 
             //changed algorithm here
-            if (!is_in_explored_set(node))
-            {
+            if (!is_in_explored_set(node)) {
                 explored_set.add(node);
 
                 Node expanded_node;
@@ -145,7 +110,7 @@ public class Agent2 extends BaseAgent {
                         expanded_node = new Node(node.row + 1, node.column);
                         expanded_node.parent = node;
                         expanded_node.data = turnData.map[node.row + 1][node.column];
-                        if (is_goal(expanded_node , mode)) {
+                        if (is_goal(expanded_node, mode)) {
                             print_path(expanded_node);
                             return true;
 
@@ -159,8 +124,8 @@ public class Agent2 extends BaseAgent {
                         expanded_node = new Node(node.row - 1, node.column);
                         expanded_node.parent = node;
                         expanded_node.data = turnData.map[node.row - 1][node.column];
-                        if (is_goal(expanded_node , mode)) {
-                            print_path(expanded_node );
+                        if (is_goal(expanded_node, mode)) {
+                            print_path(expanded_node);
                             return true;
                         } else {
                             frontier.add(expanded_node);
@@ -172,8 +137,8 @@ public class Agent2 extends BaseAgent {
                         expanded_node = new Node(node.row, node.column + 1);
                         expanded_node.parent = node;
                         expanded_node.data = turnData.map[node.row][node.column + 1];
-                        if (is_goal(expanded_node ,mode)) {
-                            print_path(expanded_node );
+                        if (is_goal(expanded_node, mode)) {
+                            print_path(expanded_node);
                             return true;
                         } else {
                             frontier.add(expanded_node);
@@ -185,8 +150,8 @@ public class Agent2 extends BaseAgent {
                         expanded_node = new Node(node.row, node.column - 1);
                         expanded_node.parent = node;
                         expanded_node.data = turnData.map[node.row][node.column - 1];
-                        if (is_goal(expanded_node , mode)) {
-                            print_path(expanded_node );
+                        if (is_goal(expanded_node, mode)) {
+                            print_path(expanded_node);
                             return true;
                         } else {
                             frontier.add(expanded_node);
@@ -201,8 +166,7 @@ public class Agent2 extends BaseAgent {
         return false;
     }
 
-    private boolean is_goal(Node node , int mode)
-    {
+    private boolean is_goal(Node node, int mode) {
         if (mode == DIAMOND)
             return node.data == '0' ||
                     node.data == '1' ||
@@ -213,6 +177,6 @@ public class Agent2 extends BaseAgent {
         return node.data == 'a';
 
     }
-
-
 }
+
+

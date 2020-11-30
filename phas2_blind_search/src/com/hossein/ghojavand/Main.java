@@ -38,7 +38,7 @@ public class Main {
         re();
         System.out.println(new Date().getTime());*/
         try {
-            String winner = new Agent2().play();
+            String winner = new Agent().play();
             //String winner = new InformedSearchAgent().play();
             System.out.println("WINNER: " + winner);
         } catch (IOException e) {
