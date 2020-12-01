@@ -8,10 +8,15 @@ import com.hossein.ghojavand.base.TurnData;
 import java.io.IOException;
 import java.util.*;
 
-public class BlindSearchAgent extends BaseAgent {
+
+public class InformedSearchAgent extends BaseAgent {
 
     private int HOME = 1 , DIAMOND = 2;
 
+    int Goal_ROW,Goal_COLUMN;
+    private boolean has_rand_action =false;
+    private  int desicion_time_limit;
+    private boolean time_out_happend = false;
 
     private Stack<Action> actions = new Stack<>();
     private Queue<Node> frontier = new LinkedList<>();
@@ -20,22 +25,83 @@ public class BlindSearchAgent extends BaseAgent {
     private boolean is_home_found = false;
     private boolean is_diamond_found = false;
 
-
-    private  int desicion_time_limit;
-
-    private boolean time_out_happend = false;
-
-
-    private boolean has_rand_action =false;
-
     int mode = DIAMOND;
 
-
-
-    public BlindSearchAgent() throws IOException {
+    public InformedSearchAgent() throws IOException {
         super();
     }
 
+    private Map<Integer,Integer> DiamondFinder(char[][] map) {
+
+        Map<Integer,Integer> diamonds = new HashMap<>();
+        for(int i=0;i< map.length;i++ )
+            for(int j=0; j< map.length;j++)
+                if(map[i][j] == '0'||map[i][j] == '1'||map[i][j] == '2'||map[i][j] == '3'||map[i][j] == '4')
+                    diamonds.put(i,j);
+
+        return diamonds;
+    }
+
+    private Action make_rand_action(TurnData turnData)
+    {
+
+        if (has_rand_action)
+        {
+            has_rand_action = false;
+            return Action.LEFT;
+        }
+        else {
+            AgentData agentData = turnData.agentData[0];
+            if (agentData.position.column + 1 < gridSize) {
+                if (turnData.map[agentData.position.row][agentData.position.column + 1] == '*')
+                    return Action.RIGHT;
+            }
+            else
+            {
+                return Action.RIGHT;
+            }
+            if (agentData.position.column - 1 >= 0) {
+                if (turnData.map[agentData.position.row][agentData.position.column - 1] == '*')
+                    return Action.LEFT;
+            }
+            else
+            {
+                return Action.LEFT;
+            }
+            if (agentData.position.row + 1 < gridSize) {
+                if (turnData.map[agentData.position.row + 1][agentData.position.column] == '*')
+                    return Action.DOWN;
+            }
+            else
+            {
+                return Action.DOWN;
+            }
+            if (agentData.position.row - 1 >= 0) {
+                if (turnData.map[agentData.position.row - 1][agentData.position.column] == '*')
+                    return Action.UP;
+            }
+            else
+            {
+                return Action.UP;
+            }
+
+            has_rand_action = true;
+            return Action.RIGHT;
+        }
+
+
+    }
+
+    private Map<Integer,Integer> homeFinder(char[][] map)
+    {
+        Map<Integer,Integer> homes = new HashMap<>();
+        for(int i=0;i< map.length;i++ )
+            for(int j=0; j< map.length;j++)
+                if(map[i][j] == 'a')
+                    homes.put(i,j);
+
+        return homes;
+    }
 
     @Override
     public Action doTurn(TurnData turnData) {
@@ -49,18 +115,25 @@ public class BlindSearchAgent extends BaseAgent {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    System.out.println("blind search");
+                    System.out.println("informed search");
                     System.out.println("grid_size: " + gridSize);
                     long algo_start_time = new Date().getTime();
+
+                    // find diamond indexes
+                    Map<Integer,Integer> diamonds = DiamondFinder(turnData.map);
+                    for(Map.Entry<Integer,Integer> entry : diamonds.entrySet()){
+                        Goal_ROW = entry.getKey();
+                        Goal_COLUMN=entry.getValue();
+                    }
+
                     find_route(turnData, DIAMOND);
+
                     long algo_finished_time = (new Date().getTime() - algo_start_time);
                     System.out.println("algorithm finished in : " + algo_finished_time + " ms");
                     System.out.println("nodes explored: " + explored_set.size());
-
                 }
             }).start();
         }
-
 
         if (mode == DIAMOND)
         {
@@ -76,7 +149,16 @@ public class BlindSearchAgent extends BaseAgent {
                         new Thread(new Runnable() {
                             @Override
                             public void run() {
-                                find_route(turnData, HOME);
+                                Map<Integer,Integer> homes = homeFinder(turnData.map);
+                                int min=Integer.MAX_VALUE;
+                                for(Map.Entry<Integer,Integer> entry : homes.entrySet())
+                                    if(Math.abs(turnData.agentData[0].position.row - entry.getKey()) +
+                                            Math.abs(turnData.agentData[0].position.column - entry.getValue()) < min ) {
+                                        Goal_ROW = entry.getKey();
+                                        Goal_COLUMN=entry.getValue();
+                                    }
+
+                                find_route(turnData , HOME);
                             }
                         }).start();
                         return make_rand_action(turnData);
@@ -193,6 +275,18 @@ public class BlindSearchAgent extends BaseAgent {
 
         return make_rand_action(turnData);
 
+
+
+
+
+
+
+
+
+
+
+
+
     }
 
 
@@ -246,34 +340,30 @@ public class BlindSearchAgent extends BaseAgent {
                 actions.add(find_action_to_parent(node1));
             node1 = node1.parent;
         }
+
+
     }
-
-
     private boolean find_route(TurnData turnData , int mode)
     {
 
-
+        explored_set.clear();
 
         actions = new Stack<>();
         frontier = new LinkedList<>();
         explored_set = new ArrayList<>();
 
+        int hoop=0;
 
         int grid_size = turnData.map.length;
-
-            AgentData agent = turnData.agentData[0];
-            Node first_node = new Node(agent.position.row, agent.position.column);
-            frontier.add(first_node);
+        AgentData agent = turnData.agentData[0];
+        Node first_node = new Node(agent.position.row,agent.position.column);
+        first_node.hoop=0;
+        frontier.add(first_node);
 
         while (!frontier.isEmpty()) {
-
-            /*if (new Date().getTime() - algo_start_time >= desicion_time_limit - 15)
-            {
-                time_out_happend = true;
-                return false;
-            }*/
-
             Node node = frontier.poll();
+
+
 
             //changed algorithm here
             if (!is_in_explored_set(node))
@@ -285,27 +375,30 @@ public class BlindSearchAgent extends BaseAgent {
                 if (node.row + 1 < grid_size) {
                     if (turnData.map[node.row + 1][node.column] != '*') {
                         expanded_node = new Node(node.row + 1, node.column);
+                        expanded_node.distance_to_goal=Math.abs(expanded_node.row-Goal_ROW)+Math.abs(expanded_node.column-Goal_COLUMN);
                         expanded_node.parent = node;
+                        expanded_node.hoop=expanded_node.parent.hoop+1;
                         expanded_node.data = turnData.map[node.row + 1][node.column];
                         if (is_goal(expanded_node , mode)) {
                             fill_actions(expanded_node);
-
                             if (mode == HOME)
                                 is_home_found = true;
                             else
                                 is_diamond_found = true;
-
                             return true;
 
                         } else {
                             frontier.add(expanded_node);
+                            //addToFrontier(e);
                         }
                     }
                 }
                 if (node.row - 1 >= 0) {
                     if (turnData.map[node.row - 1][node.column] != '*') {
                         expanded_node = new Node(node.row - 1, node.column);
+                        expanded_node.distance_to_goal=Math.abs(expanded_node.row-Goal_ROW)+Math.abs(expanded_node.column-Goal_COLUMN);
                         expanded_node.parent = node;
+                        expanded_node.hoop=expanded_node.parent.hoop+1;
                         expanded_node.data = turnData.map[node.row - 1][node.column];
                         if (is_goal(expanded_node , mode)) {
                             fill_actions(expanded_node );
@@ -313,7 +406,6 @@ public class BlindSearchAgent extends BaseAgent {
                                 is_home_found = true;
                             else
                                 is_diamond_found = true;
-
                             return true;
                         } else {
                             frontier.add(expanded_node);
@@ -323,7 +415,9 @@ public class BlindSearchAgent extends BaseAgent {
                 if (node.column + 1 < grid_size) {
                     if (turnData.map[node.row][node.column + 1] != '*') {
                         expanded_node = new Node(node.row, node.column + 1);
+                        expanded_node.distance_to_goal=Math.abs(expanded_node.row-Goal_ROW)+Math.abs(expanded_node.column-Goal_COLUMN);
                         expanded_node.parent = node;
+                        expanded_node.hoop=expanded_node.parent.hoop+1;
                         expanded_node.data = turnData.map[node.row][node.column + 1];
                         if (is_goal(expanded_node ,mode)) {
                             fill_actions(expanded_node );
@@ -331,7 +425,6 @@ public class BlindSearchAgent extends BaseAgent {
                                 is_home_found = true;
                             else
                                 is_diamond_found = true;
-
                             return true;
                         } else {
                             frontier.add(expanded_node);
@@ -341,7 +434,9 @@ public class BlindSearchAgent extends BaseAgent {
                 if (node.column - 1 >= 0) {
                     if (turnData.map[node.row][node.column - 1] != '*') {
                         expanded_node = new Node(node.row, node.column - 1);
+                        expanded_node.distance_to_goal=Math.abs(expanded_node.row-Goal_ROW)+Math.abs(expanded_node.column-Goal_COLUMN);
                         expanded_node.parent = node;
+                        expanded_node.hoop=expanded_node.parent.hoop+1;
                         expanded_node.data = turnData.map[node.row][node.column - 1];
                         if (is_goal(expanded_node , mode)) {
                             fill_actions(expanded_node );
@@ -349,78 +444,89 @@ public class BlindSearchAgent extends BaseAgent {
                                 is_home_found = true;
                             else
                                 is_diamond_found = true;
-
                             return true;
                         } else {
                             frontier.add(expanded_node);
                         }
                     }
                 }
-
-
             }
             /*
             else drops it and goes on
              */
+
+            frontier = sortFrontier();
+
+            // addFrontier(node);
+
         }
         return false;
     }
 
+    private LinkedList<Node> sortFrontier() {
 
-    private Action make_rand_action(TurnData turnData)
-    {
+        Node[] array;
+        array= frontier.toArray(new Node[frontier.size()]);
 
-        if (has_rand_action)
+        Node min = array[0];
+        int min_index = 0;
+        for (int i=0 ; i<frontier.size();i++)
         {
-            has_rand_action = false;
-            return Action.LEFT;
+            if(array[i].distance_to_goal+array[i].hoop < min.distance_to_goal+min.hoop) {
+                min = array[i];
+                min_index = i;
+            }
+            else if(array[i].distance_to_goal + array[i].hoop ==
+                    min.distance_to_goal+min.hoop && array[i].distance_to_goal<min.distance_to_goal)
+            {
+                min=array[i];
+                min_index=i;
+            }
         }
-        else {
-            AgentData agentData = turnData.agentData[0];
-            if (agentData.position.column + 1 < gridSize) {
-                if (turnData.map[agentData.position.row][agentData.position.column + 1] == '*')
-                    return Action.RIGHT;
-            }
-            else
-            {
-                return Action.RIGHT;
-            }
-            if (agentData.position.column - 1 >= 0) {
-                if (turnData.map[agentData.position.row][agentData.position.column - 1] == '*')
-                    return Action.LEFT;
-            }
-            else
-            {
-                return Action.LEFT;
-            }
-            if (agentData.position.row + 1 < gridSize) {
-                if (turnData.map[agentData.position.row + 1][agentData.position.column] == '*')
-                    return Action.DOWN;
-            }
-            else
-            {
-                return Action.DOWN;
-            }
-            if (agentData.position.row - 1 >= 0) {
-                if (turnData.map[agentData.position.row - 1][agentData.position.column] == '*')
-                    return Action.UP;
-            }
-            else
-            {
-                return Action.UP;
-            }
 
-            has_rand_action = true;
-            return Action.RIGHT;
-        }
+        Node tmp = array[0];
+        array[0] = array[min_index];
+        array[min_index] = tmp;
+
+        return new LinkedList<Node>(Arrays.asList(array));
+
+
+//        com.hossein.ghojavand.Node[] array;
+//        array= frontier.toArray(new com.hossein.ghojavand.Node[frontier.size()]);
+//
+//            for (int i = 0; i < frontier.size()-1; i++)
+//                for (int j = 0; j < frontier.size()-i-1; j++) {
+//                    if (array[j].distance_to_goal + array[j].hoop >
+//                            array[j + 1].distance_to_goal + array[j + 1].hoop) {
+//                        // swap
+//                        com.hossein.ghojavand.Node temp = array[j];
+//                        array[j] = array[j + 1];
+//                        array[j + 1] = temp;
+//                    }
+//                    else if(array[j].distance_to_goal + array[j].hoop ==
+//                            array[j + 1].distance_to_goal + array[j + 1].hoop && array[j].distance_to_goal>array[j+1].distance_to_goal)
+//                    {
+//                        com.hossein.ghojavand.Node temp = array[j];
+//                        array[j] = array[j + 1];
+//                        array[j + 1] = temp;
+//                    }
+//
+//                }
+//
+//
+//      //  System.out.println("["+array[0].row+","+array[0].column+"]" + (array[0].distance_to_goal-array[0].hoop));
+//
+//        return new LinkedList<com.hossein.ghojavand.Node>(Arrays.asList(array));
 
 
     }
 
+
+
     private boolean is_goal(Node node , int mode)
     {
         if (mode == DIAMOND)
-            return node.data == '0' ||
+            return  node.data == '0' ||
                     node.data == '1' ||
                     node.data == '2' ||
                     node.data == '3' ||
@@ -429,6 +535,5 @@ public class BlindSearchAgent extends BaseAgent {
         return node.data == 'a';
 
     }
-
 
 }
