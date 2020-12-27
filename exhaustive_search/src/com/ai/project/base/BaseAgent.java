@@ -12,7 +12,7 @@ public abstract class BaseAgent {
     private final DataOutputStream outputStream;
     public final String name;
     public final int agentCount, gridSize, maxTurns;
-    public final float decisionTimeLimit;
+    public final double decisionTimeLimit;
 
     public BaseAgent() throws IOException {
         Socket connection = new Socket("127.0.0.1", 9921);
@@ -22,9 +22,11 @@ public abstract class BaseAgent {
         agentCount = Integer.parseInt(inputStream.readUTF());
         gridSize = Integer.parseInt(inputStream.readUTF());
         maxTurns = Integer.parseInt(inputStream.readUTF());
-
-        //System.out.println("wtf = " + inputStream.readUTF());
-        decisionTimeLimit = Float.parseFloat(inputStream.readUTF());
+        String decisionTimeLimitString = inputStream.readUTF();
+        if (decisionTimeLimitString.equals("None"))
+            decisionTimeLimit = Double.POSITIVE_INFINITY;
+        else
+            decisionTimeLimit = Double.parseDouble(decisionTimeLimitString);
     }
 
     private TurnData readTurnData(String firstLine) throws IOException {
@@ -32,7 +34,6 @@ public abstract class BaseAgent {
         AgentData[] agentData = new AgentData[agentCount];
         for (int i = 0; i < agentCount; i++) {
             String[] info = inputStream.readUTF().split(" ");
-            System.out.println(Arrays.toString(info));
             String name = info[0];
             String[] positionStrings = info[1].split(":");
             int positionRow = Integer.parseInt(positionStrings[0]);
@@ -46,9 +47,10 @@ public abstract class BaseAgent {
             if (!info[3].equals("-")) {
                 collected = new int[info[3].length()];
                 for (int j = 0; j < collected.length; j++)
-                    collected[j] = Integer.parseInt(info[3].split(" ")[j]);
+                    collected[j] = Integer.parseInt(info[3].split("")[j]);
             }
-            agentData[i] = new AgentData(name, position, carrying, collected);
+            int score = Integer.parseInt(info[4]);
+            agentData[i] = new AgentData(name, position, carrying, collected, score);
         }
         char[][] map = new char[gridSize][gridSize];
         for (int i = 0; i < gridSize; i++) {
