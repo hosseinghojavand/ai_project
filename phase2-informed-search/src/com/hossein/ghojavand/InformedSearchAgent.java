@@ -31,16 +31,7 @@ public class InformedSearchAgent extends BaseAgent {
         super();
     }
 
-    private Map<Integer,Integer> DiamondFinder(char[][] map) {
 
-        Map<Integer,Integer> diamonds = new HashMap<>();
-        for(int i=0;i< map.length;i++ )
-            for(int j=0; j< map.length;j++)
-                if(map[i][j] == '0'||map[i][j] == '1'||map[i][j] == '2'||map[i][j] == '3'||map[i][j] == '4')
-                    diamonds.put(i,j);
-
-        return diamonds;
-    }
 
     private Action make_rand_action(TurnData turnData)
     {
@@ -90,6 +81,17 @@ public class InformedSearchAgent extends BaseAgent {
         }
 
 
+    }
+
+    private Map<Integer,Integer> DiamondFinder(char[][] map) {
+
+        Map<Integer,Integer> diamonds = new HashMap<>();
+        for(int i=0;i< map.length;i++ )
+            for(int j=0; j< map.length;j++)
+                if(map[i][j] == '0'||map[i][j] == '1'||map[i][j] == '2'||map[i][j] == '3'||map[i][j] == '4')
+                    diamonds.put(i,j);
+
+        return diamonds;
     }
 
     private Map<Integer,Integer> homeFinder(char[][] map)
@@ -307,12 +309,12 @@ public class InformedSearchAgent extends BaseAgent {
         {
             if (node.parent.column - node.column == -1)
             {
-                //System.out.println("right");
+                System.out.println("right");
                 return Action.RIGHT;
             }
             else
             {
-                //System.out.println("left");
+                System.out.println("left");
                 return Action.LEFT;
             }
         }
@@ -320,12 +322,12 @@ public class InformedSearchAgent extends BaseAgent {
         {
             if (node.parent.row - node.row == -1)
             {
-                //System.out.println("down");
+                System.out.println("down");
                 return Action.DOWN;
             }
             else
             {
-                //System.out.println("up");
+                System.out.println("up");
                 return Action.UP;
             }
         }
@@ -352,8 +354,6 @@ public class InformedSearchAgent extends BaseAgent {
         frontier = new LinkedList<>();
         explored_set = new ArrayList<>();
 
-        int hoop=0;
-
         int grid_size = turnData.map.length;
         AgentData agent = turnData.agentData[0];
         Node first_node = new Node(agent.position.row,agent.position.column);
@@ -362,8 +362,6 @@ public class InformedSearchAgent extends BaseAgent {
 
         while (!frontier.isEmpty()) {
             Node node = frontier.poll();
-
-
 
             //changed algorithm here
             if (!is_in_explored_set(node))
@@ -380,6 +378,7 @@ public class InformedSearchAgent extends BaseAgent {
                         expanded_node.hoop=expanded_node.parent.hoop+1;
                         expanded_node.data = turnData.map[node.row + 1][node.column];
                         if (is_goal(expanded_node , mode)) {
+                            System.out.println("hoop= " + expanded_node.hoop);
                             fill_actions(expanded_node);
                             if (mode == HOME)
                                 is_home_found = true;
@@ -401,6 +400,7 @@ public class InformedSearchAgent extends BaseAgent {
                         expanded_node.hoop=expanded_node.parent.hoop+1;
                         expanded_node.data = turnData.map[node.row - 1][node.column];
                         if (is_goal(expanded_node , mode)) {
+                            System.out.println("hoop= " + expanded_node.hoop);
                             fill_actions(expanded_node );
                             if (mode == HOME)
                                 is_home_found = true;
@@ -420,6 +420,7 @@ public class InformedSearchAgent extends BaseAgent {
                         expanded_node.hoop=expanded_node.parent.hoop+1;
                         expanded_node.data = turnData.map[node.row][node.column + 1];
                         if (is_goal(expanded_node ,mode)) {
+                            System.out.println("hoop= " + expanded_node.hoop);
                             fill_actions(expanded_node );
                             if (mode == HOME)
                                 is_home_found = true;
@@ -439,6 +440,7 @@ public class InformedSearchAgent extends BaseAgent {
                         expanded_node.hoop=expanded_node.parent.hoop+1;
                         expanded_node.data = turnData.map[node.row][node.column - 1];
                         if (is_goal(expanded_node , mode)) {
+                            System.out.println("hoop= " + expanded_node.hoop);
                             fill_actions(expanded_node );
                             if (mode == HOME)
                                 is_home_found = true;
@@ -489,34 +491,6 @@ public class InformedSearchAgent extends BaseAgent {
         array[min_index] = tmp;
 
         return new LinkedList<Node>(Arrays.asList(array));
-
-
-//        com.hossein.ghojavand.Node[] array;
-//        array= frontier.toArray(new com.hossein.ghojavand.Node[frontier.size()]);
-//
-//            for (int i = 0; i < frontier.size()-1; i++)
-//                for (int j = 0; j < frontier.size()-i-1; j++) {
-//                    if (array[j].distance_to_goal + array[j].hoop >
-//                            array[j + 1].distance_to_goal + array[j + 1].hoop) {
-//                        // swap
-//                        com.hossein.ghojavand.Node temp = array[j];
-//                        array[j] = array[j + 1];
-//                        array[j + 1] = temp;
-//                    }
-//                    else if(array[j].distance_to_goal + array[j].hoop ==
-//                            array[j + 1].distance_to_goal + array[j + 1].hoop && array[j].distance_to_goal>array[j+1].distance_to_goal)
-//                    {
-//                        com.hossein.ghojavand.Node temp = array[j];
-//                        array[j] = array[j + 1];
-//                        array[j + 1] = temp;
-//                    }
-//
-//                }
-//
-//
-//      //  System.out.println("["+array[0].row+","+array[0].column+"]" + (array[0].distance_to_goal-array[0].hoop));
-//
-//        return new LinkedList<com.hossein.ghojavand.Node>(Arrays.asList(array));
 
 
     }

@@ -3,10 +3,7 @@ package com.ai.project;
 import com.ai.project.base.Action;
 import com.ai.project.base.BaseAgent;
 import com.ai.project.base.TurnData;
-
-import javax.print.DocFlavor;
 import java.io.IOException;
-import java.security.KeyPair;
 import java.util.*;
 
 public class ExhaustiveSearchAgent extends BaseAgent {
@@ -15,7 +12,10 @@ public class ExhaustiveSearchAgent extends BaseAgent {
 
     private Queue<Action> actions = new LinkedList<>();
 
-    public List<AbstractMap.SimpleEntry<List<Diamond> , Integer>> orders = new ArrayList<>();
+    public List<Choice> orders = new ArrayList<>();
+
+
+    //public List<AbstractMap.SimpleEntry<List<Diamond> , Integer>> orders = new ArrayList<>();
 
     boolean is_startup = true;
 
@@ -29,7 +29,7 @@ public class ExhaustiveSearchAgent extends BaseAgent {
     public Action doTurn(TurnData turnData) {
 
         if (turnData.turnsLeft == maxTurns) {
-            long algo_start_time = new Date().getTime();
+            long algorithm_start_time = new Date().getTime();
 
             List<Diamond> diamonds = find_dimonds_in_map(turnData);
             fill_orders(diamonds.size(), diamonds);
@@ -37,7 +37,7 @@ public class ExhaustiveSearchAgent extends BaseAgent {
 
             best_choice_index = find_best_order(turnData);
 
-            generate_actions(turnData , orders.get(best_choice_index).getKey());
+            generate_actions(turnData , orders.get(best_choice_index).diamonds_list);
 
             /*for(int i =0 ; i < orders.get(best_choice_index).getKey().size() ; i++)
             {
@@ -48,7 +48,7 @@ public class ExhaustiveSearchAgent extends BaseAgent {
             System.out.println("size = " + actions.size());*/
 
 
-            System.out.println("algo time = " + (new Date().getTime() - algo_start_time));
+            System.out.println("algorithm time = " + (new Date().getTime() - algorithm_start_time) + " ms");
         }
 
 
@@ -206,17 +206,6 @@ public class ExhaustiveSearchAgent extends BaseAgent {
             fill_actions(node.parent);
         }
         actions.add(find_action_to_parent(node));
-
-        /*System.out.println("start");
-        Node node1 = node;
-        while (node1!=null)
-        {
-            if (node1.parent!=null)
-                actions.add(find_action_to_parent(node1));
-            node1 = node1.parent;
-        }*/
-
-
     }
 
     private Action find_action_to_parent(Node node)
@@ -273,20 +262,19 @@ public class ExhaustiveSearchAgent extends BaseAgent {
 
             score = 0;
             total_distance = 0;
-            explore_queue =orders.get(i).getKey();
+            explore_queue =orders.get(i).diamonds_list;
 
 
 
 
             for (int j = 0 ; j < explore_queue.size() ; j++)
             {
-                int diamond_distance = find_diamond_distance(
+                Node diamond= find_diamond_distance(
                         DIAMOND , turnData.map.length , map , explore_queue.get(j).row , explore_queue.get(j).column
                         ,agent_row , agent_column);
 
-                //System.out.println("diamond_distance = " + diamond_distance);
 
-                if (diamond_distance>0 && (total_distance + diamond_distance < turnData.turnsLeft))
+                if (diamond.hoop>0 && (total_distance + diamond.hoop < turnData.turnsLeft))
                 {
                     //char c = map[agent_row][agent_column];
                     //map[agent_row][agent_column] = '.';
@@ -304,33 +292,33 @@ public class ExhaustiveSearchAgent extends BaseAgent {
                         }
                     }
 
-                    int home_distance= find_diamond_distance(HOME , turnData.map.length , map , GOAL_ROW , GOAL_COLUMN,agent_row , agent_column);
-                    //System.out.println("home_distance = " + home_distance);
+                    Node home= find_diamond_distance(HOME , turnData.map.length , map , GOAL_ROW , GOAL_COLUMN,agent_row , agent_column);
 
-                    //print_map(map , map.length);
-                    if (home_distance > 0 && (total_distance+diamond_distance + home_distance <=turnData.turnsLeft))
+                    if (home.hoop > 0 && (total_distance+ diamond.hoop + home.hoop <=turnData.turnsLeft))
                     {
                         agent_row = GOAL_ROW;
                         agent_column = GOAL_COLUMN;
                         score +=explore_queue.get(j).value;
-                        total_distance +=(diamond_distance + home_distance);
-                        //System.out.println("value = " + explore_queue.get(j).value);
+                        total_distance +=(diamond.hoop + home.hoop);
+
+                        orders.get(i).nodes.add(diamond);
+                        orders.get(i).nodes.add(home);
+                        orders.get(i).depth ++;
 
                     }
                     else
                     {
-                        orders.get(i).setValue(score);
-
+                        orders.get(i).score = score;
                         break;
                     }
                 }
                 else
                 {
-                    orders.get(i).setValue(score);
+                    orders.get(i).score = score;
                     break;
                 }
             }
-            orders.get(i).setValue(score);
+            orders.get(i).score = score;
 
 
         }
@@ -339,9 +327,9 @@ public class ExhaustiveSearchAgent extends BaseAgent {
         int index = 0;
         for (int i =0 ; i < orders.size() ; i++)
         {
-            if (orders.get(i).getValue()>keep)
+            if (orders.get(i).score > keep)
             {
-                keep =orders.get(i).getValue();
+                keep =orders.get(i).score;
                 index = i;
             }
         }
@@ -360,88 +348,7 @@ public class ExhaustiveSearchAgent extends BaseAgent {
 
     }
 
-    private int give_diamond_to_home(int grid_size , char[][] map , int row , int column , int agent_row , int agent_column) {
-        Queue<Node> frontier = new LinkedList<>();
-        List<Node> explored_set = new ArrayList<>();
 
-        Node first_node = new Node(agent_row,agent_column);
-        first_node.hoop=0;
-        frontier.add(first_node);
-
-        while (!frontier.isEmpty()) {
-            Node node = frontier.poll();
-
-            if (!is_in_explored_set(explored_set ,node))
-            {
-                explored_set.add(node);
-
-                Node expanded_node;
-
-                if (node.row + 1 < grid_size) {
-                    if (map[node.row + 1][node.column] != '*') {
-                        expanded_node = new Node(node.row + 1, node.column);
-                        expanded_node.distance_to_goal=Math.abs(expanded_node.row-row)+Math.abs(expanded_node.column-column);
-                        expanded_node.parent = node;
-                        expanded_node.hoop=expanded_node.parent.hoop+1;
-                        expanded_node.data = map[node.row + 1][node.column];
-                        if (is_goal(expanded_node , HOME)) {
-                            return expanded_node.hoop;
-
-                        } else {
-                            frontier.add(expanded_node);
-                            //addToFrontier(e);
-                        }
-                    }
-                }
-                if (node.row - 1 >= 0) {
-                    if (map[node.row - 1][node.column] != '*') {
-                        expanded_node = new Node(node.row - 1, node.column);
-                        expanded_node.distance_to_goal=Math.abs(expanded_node.row-row)+Math.abs(expanded_node.column-column);
-                        expanded_node.parent = node;
-                        expanded_node.hoop=expanded_node.parent.hoop+1;
-                        expanded_node.data = map[node.row - 1][node.column];
-                        if (is_goal(expanded_node , HOME)) {
-                            return expanded_node.hoop;
-                        } else {
-                            frontier.add(expanded_node);
-                        }
-                    }
-                }
-                if (node.column + 1 < grid_size) {
-                    if (map[node.row][node.column + 1] != '*') {
-                        expanded_node = new Node(node.row, node.column + 1);
-                        expanded_node.distance_to_goal=Math.abs(expanded_node.row-row)+Math.abs(expanded_node.column-column);
-                        expanded_node.parent = node;
-                        expanded_node.hoop=expanded_node.parent.hoop+1;
-                        expanded_node.data = map[node.row][node.column + 1];
-                        if (is_goal(expanded_node ,HOME)) {
-                            return expanded_node.hoop;
-                        } else {
-                            frontier.add(expanded_node);
-                        }
-                    }
-                }
-                if (node.column - 1 >= 0) {
-                    if (map[node.row][node.column - 1] != '*') {
-                        expanded_node = new Node(node.row, node.column - 1);
-                        expanded_node.distance_to_goal=Math.abs(expanded_node.row-row)+Math.abs(expanded_node.column-column);
-                        expanded_node.parent = node;
-                        expanded_node.hoop=expanded_node.parent.hoop+1;
-                        expanded_node.data = map[node.row][node.column - 1];
-                        if (is_goal(expanded_node , HOME)) {
-                            return expanded_node.hoop;
-                        } else {
-                            frontier.add(expanded_node);
-                        }
-                    }
-                }
-            }
-
-            frontier = sortFrontier(frontier);
-
-        }
-        return 0;
-    }
 
     private boolean is_in_explored_set(List<Node> explored_set , Node node)
     {
@@ -495,7 +402,7 @@ public class ExhaustiveSearchAgent extends BaseAgent {
 
 
     }
-    private  int find_diamond_distance(int mode , int grid_size , char[][] map , int row , int column , int agent_row , int agent_column)
+    private  Node find_diamond_distance(int mode , int grid_size , char[][] map , int row , int column , int agent_row , int agent_column)
     {
         Queue<Node> frontier = new LinkedList<>();
         List<Node> explored_set = new ArrayList<>();
@@ -522,7 +429,7 @@ public class ExhaustiveSearchAgent extends BaseAgent {
                         expanded_node.hoop=expanded_node.parent.hoop+1;
                         expanded_node.data = map[node.row + 1][node.column];
                         if (is_goal(expanded_node , mode)) {
-                            return expanded_node.hoop;
+                            return expanded_node;
 
                         } else {
                             frontier.add(expanded_node);
@@ -538,7 +445,7 @@ public class ExhaustiveSearchAgent extends BaseAgent {
                         expanded_node.hoop=expanded_node.parent.hoop+1;
                         expanded_node.data = map[node.row - 1][node.column];
                         if (is_goal(expanded_node , mode)) {
-                            return expanded_node.hoop;
+                            return expanded_node;
                         } else {
                             frontier.add(expanded_node);
                         }
@@ -552,7 +459,7 @@ public class ExhaustiveSearchAgent extends BaseAgent {
                         expanded_node.hoop=expanded_node.parent.hoop+1;
                         expanded_node.data = map[node.row][node.column + 1];
                         if (is_goal(expanded_node ,mode)) {
-                            return expanded_node.hoop;
+                            return expanded_node;
                         } else {
                             frontier.add(expanded_node);
                         }
@@ -566,7 +473,7 @@ public class ExhaustiveSearchAgent extends BaseAgent {
                         expanded_node.hoop=expanded_node.parent.hoop+1;
                         expanded_node.data = map[node.row][node.column - 1];
                         if (is_goal(expanded_node , mode)) {
-                            return expanded_node.hoop;
+                            return expanded_node;
                         } else {
                             frontier.add(expanded_node);
                         }
@@ -579,7 +486,7 @@ public class ExhaustiveSearchAgent extends BaseAgent {
         }
 
 
-        return  0;
+        return new Node();
     }
 
 
@@ -609,7 +516,7 @@ public class ExhaustiveSearchAgent extends BaseAgent {
             for (int i =0 ; i <diamonds.size() ; i++ )
                 cpy.add(diamonds.get(i));
 
-            orders.add(new AbstractMap.SimpleEntry<>(cpy , 0));
+            orders.add(new Choice(cpy , 0));
         }
         else {
             for(int i = 0; i < n-1; i++) {

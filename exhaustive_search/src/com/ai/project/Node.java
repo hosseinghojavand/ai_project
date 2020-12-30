@@ -9,8 +9,15 @@ public class Node {
     public int hoop;
     public int distance_to_goal;
 
+
+    public Node()
+    {
+        this.hoop = 0;
+    }
+
     public Node(int row , int column)
     {
+        this.hoop = 0;
         this.row = row;
         this.column = column;
     }
