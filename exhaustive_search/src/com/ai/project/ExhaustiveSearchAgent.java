@@ -37,9 +37,9 @@ public class ExhaustiveSearchAgent extends BaseAgent {
 
             best_choice_index = find_best_order(turnData);
 
-            //generate_actions(turnData , orders.get(best_choice_index).diamonds_list);
+            generate_actions(turnData , orders.get(best_choice_index).diamonds_list);
 
-            generate_actions2(orders.get(best_choice_index));
+            //generate_actions2(orders.get(best_choice_index));
 
             /*for(int i =0 ; i < orders.get(best_choice_index).getKey().size() ; i++)
             {
