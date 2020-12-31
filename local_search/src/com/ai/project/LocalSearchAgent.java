@@ -402,16 +402,6 @@ public class LocalSearchAgent extends BaseAgent {
                 agent_row = choice.diamonds_list.get(i).row;
                 agent_column = choice.diamonds_list.get(i).column;
 
-                /*Map<Integer, Integer> homes = homeFinder(map);
-                int min = Integer.MAX_VALUE;
-                for (Map.Entry<Integer, Integer> entry : homes.entrySet()) {
-                    if (Math.abs(agent_row - entry.getKey()) +
-                            Math.abs(agent_column - entry.getValue()) < min) {
-                        GOAL_ROW = entry.getKey();
-                        GOAL_COLUMN = entry.getValue();
-                    }
-                }*/
-
                 GOAL_ROW = choice.sites_list.get(ind).row;
                 GOAL_COLUMN = choice.sites_list.get(ind).column;
                 ind++;
@@ -455,8 +445,10 @@ public class LocalSearchAgent extends BaseAgent {
                         expanded_node.data = map[node.row + 1][node.column];
                         if (expanded_node.data == goal) {
 
-                            fill_actions(expanded_node);
-                            return true;
+                            if ((node.row+1 == row) && (node.column == column)) {
+                                fill_actions(expanded_node);
+                                return true;
+                            }
 
                         } else {
                             frontier.add(expanded_node);
@@ -473,9 +465,10 @@ public class LocalSearchAgent extends BaseAgent {
                         expanded_node.data = map[node.row - 1][node.column];
                         if (expanded_node.data == goal) {
 
-                            fill_actions(expanded_node);
-
-                            return true;
+                            if ((node.row-1 == row) && (node.column == column)) {
+                                fill_actions(expanded_node);
+                                return true;
+                            }
                         } else {
                             frontier.add(expanded_node);
                         }
@@ -490,9 +483,10 @@ public class LocalSearchAgent extends BaseAgent {
                         expanded_node.data = map[node.row][node.column + 1];
                         if (expanded_node.data == goal) {
 
-                            fill_actions(expanded_node);
-
-                            return true;
+                            if ((node.row == row) && (node.column + 1 == column)) {
+                                fill_actions(expanded_node);
+                                return true;
+                            }
                         } else {
                             frontier.add(expanded_node);
                         }
@@ -507,9 +501,10 @@ public class LocalSearchAgent extends BaseAgent {
                         expanded_node.data = map[node.row][node.column - 1];
                         if (expanded_node.data == goal) {
 
-                            fill_actions(expanded_node);
-
-                            return true;
+                            if ((node.row == row) && (node.column - 1 == column)) {
+                                fill_actions(expanded_node);
+                                return true;
+                            }
                         } else {
                             frontier.add(expanded_node);
                         }
