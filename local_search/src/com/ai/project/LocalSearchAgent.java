@@ -58,7 +58,7 @@ public class LocalSearchAgent extends BaseAgent {
 
             LocalSearch(turnData);
 
-            generate_actions(turnData, orders.get(best_choice_index).diamonds_list);
+            generate_actions(turnData, orders.get(best_choice_index));
 
 
             System.out.println("score = " + get_choice_score(orders.get(best_choice_index), turnData));
@@ -383,7 +383,7 @@ public class LocalSearchAgent extends BaseAgent {
 
 
 
-    private void generate_actions(TurnData turnData, List<Diamond> diamonds) {
+    private void generate_actions(TurnData turnData, Choice choice) {
         int agent_row = turnData.agentData[0].position.row;
         int agent_column = turnData.agentData[0].position.column;
         int GOAL_ROW = 0, GOAL_COLUMN = 0;
@@ -394,17 +394,15 @@ public class LocalSearchAgent extends BaseAgent {
                 map[m][j] = turnData.map[m][j];
         }
 
-        for (int i = 0; i < diamonds.size(); i++) {
-            /*find_actions_for(diamonds.get(i).sid , map.length , map , diamonds.get(i).row ,diamonds.get(i).column,
-                    agent_row , agent_column);
-            break;*/
-            if (find_actions_for(diamonds.get(i).sid, map.length, map, diamonds.get(i).row, diamonds.get(i).column,
+        int ind =0 ;
+        for (int i = 0; i < choice.diamonds_list.size(); i++) {
+            if (find_actions_for(choice.diamonds_list.get(i).sid, map.length, map, choice.diamonds_list.get(i).row, choice.diamonds_list.get(i).column,
                     agent_row, agent_column)) {
-                map[diamonds.get(i).row][diamonds.get(i).column] = '.';
-                agent_row = diamonds.get(i).row;
-                agent_column = diamonds.get(i).column;
+                map[choice.diamonds_list.get(i).row][choice.diamonds_list.get(i).column] = '.';
+                agent_row = choice.diamonds_list.get(i).row;
+                agent_column = choice.diamonds_list.get(i).column;
 
-                Map<Integer, Integer> homes = homeFinder(map);
+                /*Map<Integer, Integer> homes = homeFinder(map);
                 int min = Integer.MAX_VALUE;
                 for (Map.Entry<Integer, Integer> entry : homes.entrySet()) {
                     if (Math.abs(agent_row - entry.getKey()) +
@@ -412,7 +410,12 @@ public class LocalSearchAgent extends BaseAgent {
                         GOAL_ROW = entry.getKey();
                         GOAL_COLUMN = entry.getValue();
                     }
-                }
+                }*/
+
+                GOAL_ROW = choice.sites_list.get(ind).row;
+                GOAL_COLUMN = choice.sites_list.get(ind).column;
+                ind++;
+
                 if (find_actions_for('a', map.length, map, GOAL_ROW, GOAL_COLUMN,
                         agent_row, agent_column)) {
                     agent_row = GOAL_ROW;
