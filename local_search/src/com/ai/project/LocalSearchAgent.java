@@ -152,7 +152,7 @@ public class LocalSearchAgent extends BaseAgent {
 
         int final_row = 0, final_column = 0;
 
-        for (int k = 0; k < orders.size() / 60; k++) {
+        for (int k = 0; k < orders.size() / 170; k++) {
 
 
             int start_index = new Random().nextInt(orders.size());
@@ -168,7 +168,7 @@ public class LocalSearchAgent extends BaseAgent {
            // System.out.println("////////////////////Round " + k + "////////////////////");
 
            // System.out.println("Start index is " + "[" + row + " , " + column + "]");
-           // System.out.println("Now high_score is " + highest_score);
+           // System.out.println("Now high_score is " + highest_score);f
 
             //  boolean finish_one_search = false;
 
@@ -361,7 +361,7 @@ public class LocalSearchAgent extends BaseAgent {
                 Node expanded_node;
 
                 if (node.row + 1 < grid_size) {
-                    if (map[node.row + 1][node.column] != '*') {
+                    if (check_can_go(map[node.row + 1][node.column],goal)) {
                         expanded_node = new Node(node.row + 1, node.column);
                         expanded_node.distance_to_goal = Math.abs(expanded_node.row - row) + Math.abs(expanded_node.column - column);
                         expanded_node.parent = node;
@@ -381,7 +381,7 @@ public class LocalSearchAgent extends BaseAgent {
                     }
                 }
                 if (node.row - 1 >= 0) {
-                    if (map[node.row - 1][node.column] != '*') {
+                    if (check_can_go(map[node.row - 1][node.column] ,goal)) {
                         expanded_node = new Node(node.row - 1, node.column);
                         expanded_node.distance_to_goal = Math.abs(expanded_node.row - row) + Math.abs(expanded_node.column - column);
                         expanded_node.parent = node;
@@ -399,7 +399,7 @@ public class LocalSearchAgent extends BaseAgent {
                     }
                 }
                 if (node.column + 1 < grid_size) {
-                    if (map[node.row][node.column + 1] != '*') {
+                    if (check_can_go(map[node.row][node.column + 1],goal)) {
                         expanded_node = new Node(node.row, node.column + 1);
                         expanded_node.distance_to_goal = Math.abs(expanded_node.row - row) + Math.abs(expanded_node.column - column);
                         expanded_node.parent = node;
@@ -417,7 +417,7 @@ public class LocalSearchAgent extends BaseAgent {
                     }
                 }
                 if (node.column - 1 >= 0) {
-                    if (map[node.row][node.column - 1] != '*') {
+                    if (check_can_go(map[node.row][node.column - 1],goal)) {
                         expanded_node = new Node(node.row, node.column - 1);
                         expanded_node.distance_to_goal = Math.abs(expanded_node.row - row) + Math.abs(expanded_node.column - column);
                         expanded_node.parent = node;
