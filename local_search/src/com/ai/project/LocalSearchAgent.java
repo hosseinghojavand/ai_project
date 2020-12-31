@@ -152,7 +152,7 @@ public class LocalSearchAgent extends BaseAgent {
 
         int final_row = 0, final_column = 0;
 
-        for (int k = 0; k < orders.size() / 20; k++) {
+        for (int k = 0; k < orders.size() / 60; k++) {
 
 
             int start_index = new Random().nextInt(orders.size());
@@ -165,10 +165,10 @@ public class LocalSearchAgent extends BaseAgent {
 
             score = get_choice_score(local_map[row][column], turnData);
 
-            System.out.println("////////////////////Round " + k + "////////////////////");
+           // System.out.println("////////////////////Round " + k + "////////////////////");
 
-            System.out.println("Start index is " + "[" + row + " , " + column + "]");
-            System.out.println("Now high_score is " + highest_score);
+           // System.out.println("Start index is " + "[" + row + " , " + column + "]");
+           // System.out.println("Now high_score is " + highest_score);
 
             //  boolean finish_one_search = false;
 
@@ -178,16 +178,6 @@ public class LocalSearchAgent extends BaseAgent {
 
                 // Up
                 if (row - 1 >= 0 && local_map[row - 1][column].active) {
-
-//                int permutation_score;
-//                if(local_map[row-1][column].score != 0 ) {
-//                    permutation_score = local_map[row - 1][column].score;
-//                }
-//                else {
-//                 permutation_score = get_choice_score(local_map[row - 1][column], turnData);
-//                    local_map[row - 1][column].score = permutation_score;
-//
-//                }
 
                     int permutation_score = get_choice_score(local_map[row - 1][column], turnData);
                     if (permutation_score >= score) {
@@ -201,16 +191,6 @@ public class LocalSearchAgent extends BaseAgent {
                 // Down
                 if (row + 1 < map_size && local_map[row + 1][column].active) {
 
-//                int permutation_score;
-//                if(local_map[row+1][column].score != 0 ) {
-//                    permutation_score = local_map[row + 1][column].score;
-//                }
-//                else {
-//                    permutation_score = get_choice_score(local_map[row + 1][column], turnData);
-//                    local_map[row + 1][column].score = permutation_score;
-//
-//                }
-
                     int permutation_score = get_choice_score(local_map[row + 1][column], turnData);
                     if (permutation_score >= score) {
                         score = permutation_score;
@@ -222,15 +202,6 @@ public class LocalSearchAgent extends BaseAgent {
 
                 // Right
                 if (column + 1 < map_size && local_map[row][column + 1].active) {
-//                int permutation_score;
-//                if(local_map[row][column+1].score != 0 ) {
-//                    permutation_score = local_map[row][column+1].score;
-//                }
-//                else {
-//                    permutation_score = get_choice_score(local_map[row][column+1], turnData);
-//                    local_map[row][column+1].score = permutation_score;
-//
-//                }
 
                     int permutation_score = get_choice_score(local_map[row][column + 1], turnData);
                     if (permutation_score >= score) {
@@ -243,15 +214,6 @@ public class LocalSearchAgent extends BaseAgent {
 
                 // Left
                 if (column - 1 >= 0 && local_map[row][column - 1].active) {
-//                int permutation_score;
-//                if(local_map[row][column-1].score != 0 ) {
-//                    permutation_score = local_map[row][column-1].score;
-//                }
-//                else {
-//                    permutation_score = get_choice_score(local_map[row][column-1], turnData);
-//                    local_map[row][column-1].score = permutation_score;
-//
-//                }
 
                     int permutation_score = get_choice_score(local_map[row][column - 1], turnData);
                     if (permutation_score >= score) {
@@ -264,15 +226,6 @@ public class LocalSearchAgent extends BaseAgent {
 
                 // Up-Right
                 if (row - 1 >= 0 && column + 1 < map_size && local_map[row - 1][column + 1].active) {
-//                int permutation_score;
-//                if(local_map[row-1][column+1].score != 0 ) {
-//                    permutation_score = local_map[row - 1][column+1].score;
-//                }
-//                else {
-//                    permutation_score = get_choice_score(local_map[row - 1][column+1], turnData);
-//                    local_map[row - 1][column+1].score = permutation_score;
-//
-//                }
 
                     int permutation_score = get_choice_score(local_map[row - 1][column + 1], turnData);
                     if (permutation_score >= score) {
@@ -285,15 +238,6 @@ public class LocalSearchAgent extends BaseAgent {
 
                 // Up-Left
                 if (row - 1 >= 0 && column - 1 >= 0 && local_map[row - 1][column - 1].active) {
-//                int permutation_score;
-//                if(local_map[row-1][column-1].score != 0 ) {
-//                    permutation_score = local_map[row - 1][column-1].score;
-//                }
-//                else {
-//                    permutation_score = get_choice_score(local_map[row - 1][column-1], turnData);
-//                    local_map[row-1][column-1].score = permutation_score;
-//
-//                }
 
                     int permutation_score = get_choice_score(local_map[row - 1][column - 1], turnData);
                     if (permutation_score >= score) {
@@ -306,15 +250,6 @@ public class LocalSearchAgent extends BaseAgent {
 
                 // Down-Right
                 if (row + 1 < map_size && column + 1 < map_size && local_map[row + 1][column + 1].active) {
-//                int permutation_score;
-//                if(local_map[row+1][column+1].score != 0 ) {
-//                    permutation_score = local_map[row + 1][column+1].score;
-//                }
-//                else {
-//                    permutation_score = get_choice_score(local_map[row + 1][column+1], turnData);
-//                    local_map[row + 1][column+1].score = permutation_score;
-//
-//                }
 
                     int permutation_score = get_choice_score(local_map[row + 1][column + 1], turnData);
                     if (permutation_score >= score) {
@@ -327,15 +262,6 @@ public class LocalSearchAgent extends BaseAgent {
 
                 // Down-Left
                 if (row + 1 < map_size && column - 1 >= 0 && local_map[row + 1][column - 1].active) {
-//                int permutation_score;
-//                if(local_map[row+1][column-1].score != 0 ) {
-//                    permutation_score = local_map[row + 1][column-1].score;
-//                }
-//                else {
-//                    permutation_score = get_choice_score(local_map[row + 1][column-1], turnData);
-//                    local_map[row + 1][column-1].score = permutation_score;
-//
-//                }
 
                     int permutation_score = get_choice_score(local_map[row + 1][column - 1], turnData);
                     if (permutation_score >= score) {
@@ -353,7 +279,7 @@ public class LocalSearchAgent extends BaseAgent {
                         highest_score = score;
                         final_row = row;
                         final_column = column;
-                        System.out.println("Final index Updated " + final_row + "  " + final_column);
+                     //   System.out.println("Final index Updated " + final_row + "  " + final_column);
                     }
 
                     break;
@@ -362,12 +288,12 @@ public class LocalSearchAgent extends BaseAgent {
                     column = next_column;
                 }
 
-                //System.out.println("Current index is " + "[" + row + " , " + column + "]");
+
 
             }
-            System.out.println("This round " + score);
+          //  System.out.println("This round " + score);
 
-            System.out.println("Final row " + final_row + "  " + final_column);
+          //  System.out.println("Final row " + final_row + "  " + final_column);
 
         }
 
