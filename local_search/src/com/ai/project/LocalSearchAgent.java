@@ -44,10 +44,16 @@ public class LocalSearchAgent extends BaseAgent {
 
             integrate_choice_and_site();
 
-            for(int i =0 ; i <orders.size() ; i++)
+            int ind = 0;
+            for(int i =0 ; i < orders.get(best_choice_index).diamonds_list.size() ; i++)
             {
-                System.out.println(orders.get(i).sites_list.size());
+                System.out.print(orders.get(best_choice_index).diamonds_list.get(i).sid);
+                System.out.print("--");
+                System.out.print(orders.get(best_choice_index).sites_list.get(ind).row + ""+
+                                 orders.get(best_choice_index).sites_list.get(ind).column);
+                System.out.print("--");
             }
+            System.out.println("");
 
 
             LocalSearch(turnData);
@@ -524,18 +530,18 @@ public class LocalSearchAgent extends BaseAgent {
     private Action find_action_to_parent(Node node) {
         if (node.parent.row == node.row) {
             if (node.parent.column - node.column == -1) {
-                //System.out.println("right");
+                System.out.println("right");
                 return Action.RIGHT;
             } else {
-                //System.out.println("left");
+                System.out.println("left");
                 return Action.LEFT;
             }
         } else {
             if (node.parent.row - node.row == -1) {
-                //System.out.println("down");
+                System.out.println("down");
                 return Action.DOWN;
             } else {
-                //System.out.println("up");
+                System.out.println("up");
                 return Action.UP;
             }
         }
