@@ -1,14 +1,16 @@
 package com.ai.project;
 
+import javax.swing.*;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
 
 public class Main {
 
-    public  static  List<List<Diamond>> orders = new ArrayList<>();
+    static List<Site> list = new ArrayList<>();
 
     public static void main(String[] args) {
 
@@ -20,75 +22,65 @@ public class Main {
             e.printStackTrace();
         }
 
-        /*List<Diamond> diamonds = new ArrayList<>();
+        /*list.add(new Site(list.size() , 1 ,2));
+        list.add(new Site(list.size() , 1 ,2));
 
-        for(int i = 0 ; i < 5 ; i++)
+        List<List<Site>> result = make_all_permutions(5);
+
+        for(int i =0 ; i < result.size() ; i++)
         {
-            Diamond diamond = new Diamond(i , (char)(i+48) ,2 , 5);
-            diamond.generate_value();
-            diamonds.add(diamond);
-        }
-
-
-        long algo_start_time = new Date().getTime();
-
-        //Diamond [] a = {diamonds.get(0) , diamonds.get(1) , diamonds.get(2) , diamonds.get(3) , diamonds.get(4)};
-
-        printAllRecursive( diamonds.size(), diamonds);
-//        printAllRecursive(diamonds.size() , diamonds);
-
-        for(int i = 0 ; i < orders.size() ; i++)
-        {
-            for (int j = 0 ; j < orders.get(i).size() ; j++)
+            for (int j = 0 ; j < result.get(i).size() ; j++)
             {
-                System.out.print(orders.get(i).get(j).sid);
+                System.out.print(result.get(i).get(j).id);
             }
             System.out.println("");
-        }
+        }*/
 
-        System.out.println("size= " +  orders.size());
-        System.out.println(new Date().getTime() - algo_start_time);*/
+
+    }
+
+    private static List<Site> cpy (List<Site> original)
+    {
+        List<Site> tmp = new ArrayList<>();
+        for (int i = 0 ; i < original.size();i++)
+        {
+            tmp.add(original.get(i));
+        }
+        return tmp;
     }
 
 
-    public static void printAllRecursive(int n, List<Diamond> elements) {
+    private static List<List<Site>> make_all_permutions(int n)
+    {
+        List<List<Site>> ll = new ArrayList<>();
+        List<List<Site>> result = new ArrayList<>();
+        List<Site> temp = new ArrayList<>();
 
-        if(n == 1) {
-            printArray(elements);
-        } else {
-            for(int i = 0; i < n-1; i++) {
-                printAllRecursive(n - 1, elements);
-                if(n % 2 == 0) {
-                    //System.out.println("befor: " + elements.get(i).sid + "-" + elements.get(n-1).sid );
-                    swap(elements, i, n-1);
-                    //System.out.println("befor: " + elements.get(i).sid + "-" + elements.get(n-1).sid );
-                } else {
-                    swap(elements, 0, n-1);
+        if (n==1) {
+            for (int i = 0; i < list.size(); i++) {
+                temp = new ArrayList<>();
+                temp.add(list.get(i));
+                ll.add(new ArrayList<>(new ArrayList<>(temp)));
+            }
+            return ll;
+        }
+        else
+        {
+            result = make_all_permutions(n-1);
+            for(int i =0; i < list.size() ; i++)
+            {
+                for(int j =0; j < result.size() ; j++)
+                {
+                    temp = new ArrayList<>();
+                    temp.add(list.get(i));
+                    temp.addAll(result.get(j));
+                    ll.add(new ArrayList<>(temp));
                 }
             }
-            printAllRecursive(n - 1, elements);
+            return new ArrayList<>(ll);
         }
     }
 
-    private static void swap2(Diamond[] input, int a, int b) {
-        Diamond tmp = input[a];
-        input[a] = input[b];
-        input[b] = tmp;
-    }
 
-    private static void swap(List<Diamond> input, int a, int b) {
 
-        Diamond tmp = new Diamond(input.get(a).id , input.get(a).sid , input.get(a).row , input.get(a).column);
-        Diamond bb = new Diamond(input.get(b).id , input.get(b).sid , input.get(b).row , input.get(b).column);
-        input.set(a , bb);
-        input.set(b ,tmp);
-    }
-    private static void printArray(List<Diamond> input) {
-
-        List<Diamond> cpy= new ArrayList<>();
-        for (int i =0 ; i <input.size() ; i++ )
-            cpy.add(input.get(i));
-
-        orders.add(cpy);
-    }
 }
