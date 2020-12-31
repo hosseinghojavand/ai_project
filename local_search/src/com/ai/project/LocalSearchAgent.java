@@ -44,7 +44,7 @@ public class LocalSearchAgent extends BaseAgent {
 
             integrate_choice_and_site();
 
-            int ind = 0;
+            /*int ind = 0;
             for(int i =0 ; i < orders.get(best_choice_index).diamonds_list.size() ; i++)
             {
                 System.out.print(orders.get(best_choice_index).diamonds_list.get(i).sid);
@@ -53,7 +53,7 @@ public class LocalSearchAgent extends BaseAgent {
                                  orders.get(best_choice_index).sites_list.get(ind).column);
                 System.out.print("--");
             }
-            System.out.println("");
+            System.out.println("");*/
 
 
             LocalSearch(turnData);
@@ -61,9 +61,7 @@ public class LocalSearchAgent extends BaseAgent {
             generate_actions(turnData, orders.get(best_choice_index));
 
 
-            System.out.println("score = " + get_choice_score(orders.get(best_choice_index), turnData));
-
-
+            //System.out.println("score = " + get_choice_score(orders.get(best_choice_index), turnData));
             System.out.println("algorithm time = " + (new Date().getTime() - algorithm_start_time) + " ms");
         }
 
@@ -528,18 +526,18 @@ public class LocalSearchAgent extends BaseAgent {
     private Action find_action_to_parent(Node node) {
         if (node.parent.row == node.row) {
             if (node.parent.column - node.column == -1) {
-                System.out.println("right");
+                //System.out.println("right");
                 return Action.RIGHT;
             } else {
-                System.out.println("left");
+                //System.out.println("left");
                 return Action.LEFT;
             }
         } else {
             if (node.parent.row - node.row == -1) {
-                System.out.println("down");
+                //System.out.println("down");
                 return Action.DOWN;
             } else {
-                System.out.println("up");
+                //System.out.println("up");
                 return Action.UP;
             }
         }
