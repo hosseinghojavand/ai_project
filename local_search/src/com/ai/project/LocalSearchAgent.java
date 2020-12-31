@@ -753,6 +753,7 @@ public class LocalSearchAgent extends BaseAgent {
                 return true;
             else {
                 return data != '*' &&
+                        data != '0' &&
                         data != '1' &&
                         data != '2' &&
                         data != '3' &&
