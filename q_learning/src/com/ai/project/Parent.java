@@ -144,7 +144,7 @@ public  class Parent
                     }
                     generate_actions_for(turnData, sampleNodes[keep_ind].diamond, sampleNodes[keep_ind].site);
 
-                    if (turnData.turnsLeft >= actions.size()) {
+                    if (turnData.turnsLeft >= actions.size()-1) {
                         episode_score += sampleNodes[keep_ind].diamond.value;
                         q_table[turnData.agentData[0].position.row][turnData.agentData[0].position.column][(sampleNodes.length - active_nodes) / 2].node_data[keep_ind] = episode_score;
                         backups.add(new BackUp(turnData.agentData[0].position.row, turnData.agentData[0].position.column, (sampleNodes.length - active_nodes) / 2, keep_ind));

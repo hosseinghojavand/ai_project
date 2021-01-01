@@ -2,12 +2,13 @@ package com.ai.project;
 
 public class QNode {
 
-    int min = -20;
-    int max = -1;
     public Integer [] node_data;
 
     public QNode(int n)
     {
+        int min = -20;
+        int max = -1;
+
         node_data = new Integer[n];
         for(int i =0 ; i < n ; i++)
         {
