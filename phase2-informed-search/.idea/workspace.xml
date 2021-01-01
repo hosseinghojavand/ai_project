@@ -2,15 +2,25 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="6a1e98b6-0e61-4b2d-a73d-c042e03a0bae" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/../exhaustive_search/.idea/uiDesigner.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../q_learning/.idea/uiDesigner.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../q_learning/AI991-Server.pex" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../q_learning/config.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../q_learning/map.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../q_learning/src/com/ai/project/Choice.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../q_learning/src/com/ai/project/Diamond.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../q_learning/src/com/ai/project/LocalSearchAgent.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../q_learning/src/com/ai/project/Node.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../q_learning/src/com/ai/project/QLearningAgent.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../q_learning/src/com/ai/project/Site.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../q_learning/src/com/ai/project/base/Action.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../q_learning/src/com/ai/project/base/AgentData.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../q_learning/src/com/ai/project/base/BaseAgent.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../q_learning/src/com/ai/project/base/Position.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../q_learning/src/com/ai/project/base/TurnData.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../exhaustive_search/src/com/ai/project/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/../exhaustive_search/src/com/ai/project/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../local_search/src/com/ai/project/LocalSearchAgent.java" beforeDir="false" afterPath="$PROJECT_DIR$/../local_search/src/com/ai/project/LocalSearchAgent.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../local_search/src/com/ai/project/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/../local_search/src/com/ai/project/Main.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/phase2-informed-search/com/hossein/ghojavand/InformedSearchAgent$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/phase2-informed-search/com/hossein/ghojavand/InformedSearchAgent$1.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/phase2-informed-search/com/hossein/ghojavand/InformedSearchAgent$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/phase2-informed-search/com/hossein/ghojavand/InformedSearchAgent$2.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/phase2-informed-search/com/hossein/ghojavand/InformedSearchAgent$3.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/phase2-informed-search/com/hossein/ghojavand/InformedSearchAgent$3.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/phase2-informed-search/com/hossein/ghojavand/InformedSearchAgent$4.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/phase2-informed-search/com/hossein/ghojavand/InformedSearchAgent$4.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/phase2-informed-search/com/hossein/ghojavand/InformedSearchAgent$5.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/phase2-informed-search/com/hossein/ghojavand/InformedSearchAgent$5.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/phase2-informed-search/com/hossein/ghojavand/InformedSearchAgent.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/phase2-informed-search/com/hossein/ghojavand/InformedSearchAgent.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/com/hossein/ghojavand/InformedSearchAgent.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/hossein/ghojavand/InformedSearchAgent.java" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -24,8 +34,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/com/hossein/ghojavand/InformedSearchAgent.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="484">
-              <caret line="319" column="9" selection-start-line="318" selection-start-column="13" selection-end-line="319" selection-end-column="9" />
+            <state relative-caret-position="51">
+              <caret line="116" column="22" selection-start-line="116" selection-start-column="16" selection-end-line="116" selection-end-column="22" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -40,6 +50,7 @@
       <find>is_goal</find>
       <find>fill</find>
       <find>actions</find>
+      <find>Thread</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -58,10 +69,9 @@
     </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="289" />
-    <option name="y" value="34" />
-    <option name="width" value="1356" />
-    <option name="height" value="576" />
+    <option name="x" value="1920" />
+    <option name="width" value="1366" />
+    <option name="height" value="768" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
@@ -69,7 +79,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="PackagesPane" />
       <pane id="ProjectPane">
         <subPane>
@@ -100,6 +109,7 @@
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -158,17 +168,18 @@
       <workItem from="1608734982206" duration="1618000" />
       <workItem from="1608823932153" duration="7505000" />
       <workItem from="1608900169612" duration="450000" />
+      <workItem from="1609498666996" duration="1020000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="9833000" />
+    <option name="totallyTimeSpent" value="10853000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="34" width="1920" height="1046" extended-state="6" />
+    <frame x="1920" y="0" width="1366" height="768" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.18089648" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.25984848" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Designer" order="2" />
       <window_info id="Image Layers" order="3" />
@@ -240,8 +251,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/com/hossein/ghojavand/InformedSearchAgent.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="484">
-          <caret line="319" column="9" selection-start-line="318" selection-start-column="13" selection-end-line="319" selection-end-column="9" />
+        <state relative-caret-position="51">
+          <caret line="116" column="22" selection-start-line="116" selection-start-column="16" selection-end-line="116" selection-end-column="22" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>

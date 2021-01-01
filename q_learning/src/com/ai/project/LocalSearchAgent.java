@@ -5,7 +5,6 @@ import com.ai.project.base.BaseAgent;
 import com.ai.project.base.TurnData;
 
 import java.io.IOException;
-import java.lang.Math;
 import java.util.*;
 
 public class LocalSearchAgent extends BaseAgent {
@@ -689,7 +688,7 @@ public class LocalSearchAgent extends BaseAgent {
         }
     }
 
-    private  Node find_diamond_distance(char goal , int grid_size , char[][] map , int row , int column , int agent_row , int agent_column)
+    private Node find_diamond_distance(char goal , int grid_size , char[][] map , int row , int column , int agent_row , int agent_column)
     {
         Queue<Node> frontier = new LinkedList<>();
         List<Node> explored_set = new ArrayList<>();
@@ -711,7 +710,7 @@ public class LocalSearchAgent extends BaseAgent {
                 if (node.row + 1 < grid_size) {
                     if (check_can_go(map[node.row + 1][node.column] , goal)) {
                         expanded_node = new Node(node.row + 1, node.column);
-                        expanded_node.distance_to_goal=Math.abs(expanded_node.row-row)+Math.abs(expanded_node.column-column);
+                        expanded_node.distance_to_goal= Math.abs(expanded_node.row-row)+ Math.abs(expanded_node.column-column);
                         expanded_node.parent = node;
                         expanded_node.hoop=expanded_node.parent.hoop+1;
                         expanded_node.data = map[node.row + 1][node.column];
@@ -730,7 +729,7 @@ public class LocalSearchAgent extends BaseAgent {
                 if (node.row - 1 >= 0) {
                     if (check_can_go(map[node.row - 1][node.column],goal)) {
                         expanded_node = new Node(node.row - 1, node.column);
-                        expanded_node.distance_to_goal=Math.abs(expanded_node.row-row)+Math.abs(expanded_node.column-column);
+                        expanded_node.distance_to_goal= Math.abs(expanded_node.row-row)+ Math.abs(expanded_node.column-column);
                         expanded_node.parent = node;
                         expanded_node.hoop=expanded_node.parent.hoop+1;
                         expanded_node.data = map[node.row - 1][node.column];
@@ -746,7 +745,7 @@ public class LocalSearchAgent extends BaseAgent {
                 if (node.column + 1 < grid_size) {
                     if (check_can_go(map[node.row][node.column + 1],goal)) {
                         expanded_node = new Node(node.row, node.column + 1);
-                        expanded_node.distance_to_goal=Math.abs(expanded_node.row-row)+Math.abs(expanded_node.column-column);
+                        expanded_node.distance_to_goal= Math.abs(expanded_node.row-row)+ Math.abs(expanded_node.column-column);
                         expanded_node.parent = node;
                         expanded_node.hoop=expanded_node.parent.hoop+1;
                         expanded_node.data = map[node.row][node.column + 1];
@@ -762,7 +761,7 @@ public class LocalSearchAgent extends BaseAgent {
                 if (node.column - 1 >= 0) {
                     if (check_can_go(map[node.row][node.column - 1],goal)) {
                         expanded_node = new Node(node.row, node.column - 1);
-                        expanded_node.distance_to_goal=Math.abs(expanded_node.row-row)+Math.abs(expanded_node.column-column);
+                        expanded_node.distance_to_goal= Math.abs(expanded_node.row-row)+ Math.abs(expanded_node.column-column);
                         expanded_node.parent = node;
                         expanded_node.hoop=expanded_node.parent.hoop+1;
                         expanded_node.data = map[node.row][node.column - 1];
