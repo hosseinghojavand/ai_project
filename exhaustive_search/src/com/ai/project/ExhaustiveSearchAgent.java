@@ -170,14 +170,6 @@ public class ExhaustiveSearchAgent extends BaseAgent {
     }
 
 
-    private void generate_actions2(Choice choice) {
-        actions = new LinkedList<>();
-
-        for (int i = 0; i < choice.nodes.size(); i++) {
-            //System.out.println(choice.nodes.get(i).row  + " " + choice.nodes.get(i).column);
-            fill_actions(choice.nodes.get(i));
-        }
-    }
 
     private void generate_actions(TurnData turnData, List<Diamond> diamonds) {
         int agent_row = turnData.agentData[0].position.row;
@@ -404,6 +396,7 @@ public class ExhaustiveSearchAgent extends BaseAgent {
 
         List<Diamond> explore_queue;
         int score ;
+        int turns_left;
         char[][] map;
         int total_distance;
         int agent_row , agent_column;
@@ -412,6 +405,7 @@ public class ExhaustiveSearchAgent extends BaseAgent {
         for(int i = 0; i < diamind_orders.size() ; i++)
         {
             int keep_score = 0;
+            int keep_turns_left = 0;
             for(int k = 0 ; k < site_orders.size() ; k++) {
                 int ind = 0;
                 agent_row = turnData.agentData[0].position.row;
@@ -424,6 +418,7 @@ public class ExhaustiveSearchAgent extends BaseAgent {
                 }
 
                 score = 0;
+                turns_left = 0;
                 total_distance = 0;
                 explore_queue = diamind_orders.get(i).diamonds_list;
 
@@ -435,8 +430,6 @@ public class ExhaustiveSearchAgent extends BaseAgent {
 
 
                     if (diamond.hoop > 0 && (total_distance + diamond.hoop < turnData.turnsLeft)) {
-                        //char c = map[agent_row][agent_column];
-                        //map[agent_row][agent_column] = '.';
                         map[explore_queue.get(j).row][explore_queue.get(j).column] = '.';
                         agent_row = explore_queue.get(j).row;
                         agent_column = explore_queue.get(j).column;
@@ -452,31 +445,69 @@ public class ExhaustiveSearchAgent extends BaseAgent {
                             agent_column = GOAL_COLUMN;
                             score += explore_queue.get(j).value;
                             total_distance += (diamond.hoop + home.hoop);
-
-                            //diamind_orders.get(i).nodes.add(diamond);
-                            //diamind_orders.get(i).nodes.add(home);
+                            turns_left = maxTurns - total_distance;
 
                         } else {
                             if (score >keep_score) {
                                 keep_score = score;
+                                keep_turns_left = turns_left;
                                 diamind_orders.get(i).chosed_home_order_ind = k;
                                 diamind_orders.get(i).score = score;
+                                diamind_orders.get(i).turns_left = turns_left;
+
+                            }
+                            else if (score == keep_score)
+                            {
+                                if (turns_left > keep_turns_left)
+                                {
+                                    keep_score = score;
+                                    keep_turns_left = turns_left;
+                                    diamind_orders.get(i).chosed_home_order_ind = k;
+                                    diamind_orders.get(i).score = score;
+                                    diamind_orders.get(i).turns_left = turns_left;
+                                }
                             }
                             break;
                         }
                     } else {
                         if (score >keep_score) {
                             keep_score = score;
+                            keep_turns_left = turns_left;
                             diamind_orders.get(i).chosed_home_order_ind = k;
                             diamind_orders.get(i).score = score;
+                            diamind_orders.get(i).turns_left = turns_left;
+                        }
+                        else if (score == keep_score)
+                        {
+                            if (turns_left > keep_turns_left)
+                            {
+                                keep_score = score;
+                                keep_turns_left = turns_left;
+                                diamind_orders.get(i).chosed_home_order_ind = k;
+                                diamind_orders.get(i).score = score;
+                                diamind_orders.get(i).turns_left = turns_left;
+                            }
                         }
                         break;
                     }
                 }
                 if (score >keep_score) {
                     keep_score = score;
+                    keep_turns_left = turns_left;
                     diamind_orders.get(i).chosed_home_order_ind = k;
                     diamind_orders.get(i).score = score;
+                    diamind_orders.get(i).turns_left = turns_left;
+                }
+                else if (score == keep_score)
+                {
+                    if (turns_left > keep_turns_left)
+                    {
+                        keep_score = score;
+                        keep_turns_left = turns_left;
+                        diamind_orders.get(i).chosed_home_order_ind = k;
+                        diamind_orders.get(i).score = score;
+                        diamind_orders.get(i).turns_left = turns_left;
+                    }
                 }
 
             }
@@ -485,15 +516,28 @@ public class ExhaustiveSearchAgent extends BaseAgent {
         }
 
         int keep = 0;
+        int keep_turn = 0;
         int index = 0;
         for (int i = 0; i < diamind_orders.size() ; i++)
         {
             if (diamind_orders.get(i).score > keep)
             {
                 keep = diamind_orders.get(i).score;
+                keep_turn = diamind_orders.get(i).turns_left;
                 index = i;
             }
+            else if (diamind_orders.get(i).score == keep)
+            {
+                if (diamind_orders.get(i).turns_left>keep_turn)
+                {
+                    keep = diamind_orders.get(i).score;
+                    keep_turn = diamind_orders.get(i).turns_left;
+                    index = i;
+                }
+            }
         }
+
+        System.out.println(diamind_orders.get(index).turns_left + "    " + diamind_orders.get(index).score);
 
         return index;
 
