@@ -8,7 +8,7 @@ import com.ai.project.base.TurnData;
 import java.io.IOException;
 import java.util.*;
 
-public  class Parent
+public  class Agent
 {
     private static  SampleNode[] sampleNodes;
     private static QNode[][][] q_table;
