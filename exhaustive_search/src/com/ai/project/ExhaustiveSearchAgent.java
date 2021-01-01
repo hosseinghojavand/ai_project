@@ -42,6 +42,8 @@ public class ExhaustiveSearchAgent extends BaseAgent {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
+
+                    System.out.println("grid size = " + gridSize);
                     long algorithm_start_time = new Date().getTime();
 
                     List<Diamond> diamonds = find_diamonds_in_map(turnData);
@@ -55,8 +57,9 @@ public class ExhaustiveSearchAgent extends BaseAgent {
 
                     generate_actions(turnData , diamind_orders.get(best_choice_index).diamonds_list);
                     is_algorithm_finished = true;
-
                     System.out.println("algorithm time = " + (new Date().getTime() - algorithm_start_time) + " ms");
+
+                    System.out.println("score= " + diamind_orders.get(best_choice_index).score);
                 }
             }).start();
 
@@ -537,7 +540,6 @@ public class ExhaustiveSearchAgent extends BaseAgent {
             }
         }
 
-        System.out.println(diamind_orders.get(index).turns_left + "    " + diamind_orders.get(index).score);
 
         return index;
 
