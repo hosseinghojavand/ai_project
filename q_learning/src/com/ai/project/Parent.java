@@ -103,7 +103,7 @@ public  class Parent
                             }
                         }
                     } else {
-                        System.out.println("ridam to shanset");
+                        System.out.println("by chance");
                         int random_int = (int) (Math.random() * active_nodes);
                         for (int i = 0; i < sampleNodes.length; i++) {
                             if (sampleNodes[i].is_active) {
@@ -124,17 +124,17 @@ public  class Parent
                     }
 
 
-                    /*System.out.println("*******************");
+                    System.out.println("*******************");
 
-                    System.out.println("agent = " + turnData.agentData[0].position.row + turnData.agentData[0].position.column);
+                    //System.out.println("agent = " + turnData.agentData[0].position.row + turnData.agentData[0].position.column);
 
-                    System.out.println("diamond_row = " + sampleNodes[keep_ind].diamond.row +
-                            ", diamond_column = " + sampleNodes[keep_ind].diamond.column);
+                    System.out.print("diamond_row = " + sampleNodes[keep_ind].diamond.row +
+                            ", diamond_column = " + sampleNodes[keep_ind].diamond.column + " to ");
 
                     System.out.println("site_row = " + sampleNodes[keep_ind].site.row +
                             ", site_column = " + sampleNodes[keep_ind].site.column);
 
-                    System.out.println("*******************");*/
+                    System.out.println("*******************");
 
 
                     if (has_rand_action) {
@@ -149,11 +149,11 @@ public  class Parent
                         q_table[turnData.agentData[0].position.row][turnData.agentData[0].position.column][(sampleNodes.length - active_nodes) / 2].node_data[keep_ind] = episode_score;
                         backups.add(new BackUp(turnData.agentData[0].position.row, turnData.agentData[0].position.column, (sampleNodes.length - active_nodes) / 2, keep_ind));
 
-                        System.out.println("------------------------------------------------------------------");
+                       /* System.out.println("------------------------------------------------------------------");
                         System.out.println("agent row = " + turnData.agentData[0].position.row);
                         System.out.println("agent column = " + turnData.agentData[0].position.column);
                         System.out.println("turn = " + (sampleNodes.length - active_nodes) / 2);
-                        System.out.println("ind = " + keep_ind);
+                        System.out.println("ind = " + keep_ind);*/
                         System.out.println("score = " + episode_score);
 
 
@@ -560,6 +560,8 @@ public  class Parent
 
             N_EPISODES--;
         }
+
+
     }
 
 }
