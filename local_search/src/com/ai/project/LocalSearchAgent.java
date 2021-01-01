@@ -52,6 +52,7 @@ public class LocalSearchAgent extends BaseAgent {
                     generate_actions(turnData, orders.get(best_choice_index));
                     is_algorithm_finished = true;
                     System.out.println("algorithm time = " + (new Date().getTime() - algorithm_start_time) + " ms");
+                    System.out.println("score= " + orders.get(best_choice_index).score);
                 }
             }).start();
         }
