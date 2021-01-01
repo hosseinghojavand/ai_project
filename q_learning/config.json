@@ -7,5 +7,5 @@
   "decision_time_limit": 200000,
   "initial_gem_count": 5,
   "initial_wall_count": 6,
-  "turn_sleep_time": 100
+  "turn_sleep_time": 500
 }
