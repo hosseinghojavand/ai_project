@@ -81,7 +81,6 @@ public  class Parent
                 }
 
 
-                //System.out.println("actived nodes = " + active_nodes);
 
 
                 if (actions.isEmpty()) {
@@ -92,7 +91,7 @@ public  class Parent
 
                     double random_double = Math.random();
                     if (random_double > EPSILON) {
-                        System.out.println("not by chance");
+                        //System.out.println("not by chance");
                         QNode qNode = q_table[turnData.agentData[0].position.row][turnData.agentData[0].position.column][(sampleNodes.length - active_nodes) / 2];
 
                         //  find maximum active index
@@ -103,7 +102,7 @@ public  class Parent
                             }
                         }
                     } else {
-                        System.out.println("by chance");
+                        //System.out.println("by chance");
                         int random_int = (int) (Math.random() * active_nodes);
                         for (int i = 0; i < sampleNodes.length; i++) {
                             if (sampleNodes[i].is_active) {
@@ -124,9 +123,9 @@ public  class Parent
                     }
 
 
-                    System.out.println("*******************");
+                    /*System.out.println("*******************");
 
-                    //System.out.println("agent = " + turnData.agentData[0].position.row + turnData.agentData[0].position.column);
+                    System.out.println("agent = " + turnData.agentData[0].position.row + turnData.agentData[0].position.column);
 
                     System.out.print("diamond_row = " + sampleNodes[keep_ind].diamond.row +
                             ", diamond_column = " + sampleNodes[keep_ind].diamond.column + " to ");
@@ -134,7 +133,7 @@ public  class Parent
                     System.out.println("site_row = " + sampleNodes[keep_ind].site.row +
                             ", site_column = " + sampleNodes[keep_ind].site.column);
 
-                    System.out.println("*******************");
+                    System.out.println("*******************");*/
 
 
                     if (has_rand_action) {
@@ -153,8 +152,8 @@ public  class Parent
                         System.out.println("agent row = " + turnData.agentData[0].position.row);
                         System.out.println("agent column = " + turnData.agentData[0].position.column);
                         System.out.println("turn = " + (sampleNodes.length - active_nodes) / 2);
-                        System.out.println("ind = " + keep_ind);*/
-                        System.out.println("score = " + episode_score);
+                        System.out.println("ind = " + keep_ind);
+                        System.out.println("score = " + episode_score);*/
 
 
                     }
@@ -544,7 +543,6 @@ public  class Parent
                     EPSILON -=((EPSILON -0.1)/((N_EPISODES*3) /4));
                 }
 
-                System.out.println( " EPSILON = " + EPSILON);
 
 
                 System.out.println("WINNER: " + winner);
