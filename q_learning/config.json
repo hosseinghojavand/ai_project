@@ -2,10 +2,10 @@
   "window_width": 400,
   "window_height": 600,
   "player_count": 1,
-  "grid_size": 10,
+  "grid_size": 15,
   "max_turns": 50,
   "decision_time_limit": 200000,
   "initial_gem_count": 5,
   "initial_wall_count": 6,
-  "turn_sleep_time": 1
+  "turn_sleep_time": 0
 }

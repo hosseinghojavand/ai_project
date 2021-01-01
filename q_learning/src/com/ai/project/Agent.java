@@ -17,6 +17,7 @@ public  class Agent
     private static double EPSILON = 0.4;
     private static int N_EPISODES = 32;
 
+
     private  static int active_nodes;
 
     private  static Queue<Action> actions = new LinkedList<>();
@@ -30,8 +31,12 @@ public  class Agent
 
     private static int episode_score = 0;
 
+    public static int n_sites = 0;
+
 
     static boolean is_thread_running = false;
+
+    static Integer [] all_episodes_score;
 
     public static class QLearningAgent extends BaseAgent {
 
@@ -92,7 +97,7 @@ public  class Agent
                     double random_double = Math.random();
                     if (random_double > EPSILON) {
                         //System.out.println("not by chance");
-                        QNode qNode = q_table[turnData.agentData[0].position.row][turnData.agentData[0].position.column][(sampleNodes.length - active_nodes) / 2];
+                        QNode qNode = q_table[turnData.agentData[0].position.row][turnData.agentData[0].position.column][(sampleNodes.length - active_nodes) / n_sites];
 
                         //  find maximum active index
                         for (int i = 0; i < qNode.node_data.length; i++) {
@@ -108,7 +113,7 @@ public  class Agent
                             if (sampleNodes[i].is_active) {
                                 if (random_int == 0) {
                                     keep_ind = i;
-                                    keep_score = q_table[turnData.agentData[0].position.row][turnData.agentData[0].position.column][(sampleNodes.length - active_nodes) / 2].node_data[i];
+                                    keep_score = q_table[turnData.agentData[0].position.row][turnData.agentData[0].position.column][(sampleNodes.length - active_nodes) / n_sites].node_data[i];
                                 }
                                 random_int--;
                             }
@@ -145,8 +150,9 @@ public  class Agent
 
                     if (turnData.turnsLeft >= actions.size()-1) {
                         episode_score += sampleNodes[keep_ind].diamond.value;
-                        q_table[turnData.agentData[0].position.row][turnData.agentData[0].position.column][(sampleNodes.length - active_nodes) / 2].node_data[keep_ind] = episode_score;
-                        backups.add(new BackUp(turnData.agentData[0].position.row, turnData.agentData[0].position.column, (sampleNodes.length - active_nodes) / 2, keep_ind));
+                        all_episodes_score[N_EPISODES-1] = episode_score;
+                        q_table[turnData.agentData[0].position.row][turnData.agentData[0].position.column][(sampleNodes.length - active_nodes) / n_sites].node_data[keep_ind] = episode_score;
+                        backups.add(new BackUp(turnData.agentData[0].position.row, turnData.agentData[0].position.column, (sampleNodes.length - active_nodes) / n_sites, keep_ind));
 
                        /* System.out.println("------------------------------------------------------------------");
                         System.out.println("agent row = " + turnData.agentData[0].position.row);
@@ -158,7 +164,7 @@ public  class Agent
 
                     }
 
-                    active_nodes -= 2;
+                    active_nodes -= n_sites;
 
                     if (!actions.isEmpty())
                         return actions.poll();
@@ -252,8 +258,15 @@ public  class Agent
 
         private void init(TurnData turnData) {
 
+            all_episodes_score = new Integer[N_EPISODES];
+
+            for (int i = 0 ; i < N_EPISODES ; i++)
+                all_episodes_score[i] = 0;
+
             List<Diamond> diamonds = new ArrayList<>();
             List<Site> sites = new ArrayList<>();
+
+
 
 
             //  finding diamonds and sites in map
@@ -273,6 +286,9 @@ public  class Agent
                     }
                 }
             }
+
+
+            n_sites = sites.size();
 
             sampleNodes = new SampleNode[diamonds.size() * sites.size()];
             q_table = new QNode[gridSize][gridSize][diamonds.size()];
@@ -559,6 +575,21 @@ public  class Agent
             N_EPISODES--;
         }
 
+
+        System.out.println("--------------------------------------------------------------------------------------");
+        System.out.println("results:");
+
+        System.out.print("EPISODE:    ");
+        for (int i = 0 ; i < all_episodes_score.length ; i++)
+        {
+            System.out.print(i +"   ");
+        }
+        System.out.println("");
+        System.out.println("------------------------------------------------------------------------------------------------------------------------------------------");
+        System.out.print("SCORES:    ");
+        for (Integer integer : all_episodes_score) {
+            System.out.print(integer + "   ");
+        }
 
     }
 
