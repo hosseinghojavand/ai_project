@@ -11,7 +11,7 @@ public class QNode {
         node_data = new Integer[n];
         for(int i =0 ; i < n ; i++)
         {
-            node_data[i] = (-1)*i ;//(int)(Math.random() * (max - min + 1) + min);
+            node_data[i] = (int)(Math.random() * (max - min + 1) + min);
         }
 
     }
