@@ -1,6 +1,7 @@
 package com.ai.project;
 
 import com.ai.project.base.Action;
+import com.ai.project.base.AgentData;
 import com.ai.project.base.BaseAgent;
 import com.ai.project.base.TurnData;
 
@@ -19,7 +20,10 @@ public class LocalSearchAgent extends BaseAgent {
     private List<List<Site>> site_orders = new ArrayList<>();
 
 
-    //public List<AbstractMap.SimpleEntry<List<Diamond> , Integer>> orders = new ArrayList<>();
+    private boolean time_out_happend = false;
+    boolean is_algorithm_finished = false;
+    private  int desicion_time_limit;
+    private boolean has_rand_action =false;
 
     boolean is_startup = true;
 
@@ -34,42 +38,129 @@ public class LocalSearchAgent extends BaseAgent {
     public Action doTurn(TurnData turnData) {
 
         if (turnData.turnsLeft == maxTurns) {
-            long algorithm_start_time = new Date().getTime();
 
-            List<Diamond> diamonds = find_dimonds_in_map(turnData);
-            fill_orders(diamonds.size(), diamonds);
-
-            sites = find_sites_in_map(turnData);
-            site_orders = fill_sites_orders(diamonds.size());
-
-            integrate_choice_and_site();
-
-            /*int ind = 0;
-            for(int i =0 ; i < orders.get(best_choice_index).diamonds_list.size() ; i++)
-            {
-                System.out.print(orders.get(best_choice_index).diamonds_list.get(i).sid);
-                System.out.print("--");
-                System.out.print(orders.get(best_choice_index).sites_list.get(ind).row + ""+
-                                 orders.get(best_choice_index).sites_list.get(ind).column);
-                System.out.print("--");
-            }
-            System.out.println("");*/
-
-
-            LocalSearch(turnData);
-
-            generate_actions(turnData, orders.get(best_choice_index));
-
-
-            //System.out.println("score = " + get_choice_score(orders.get(best_choice_index), turnData));
-            System.out.println("algorithm time = " + (new Date().getTime() - algorithm_start_time) + " ms");
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    long algorithm_start_time = new Date().getTime();
+                    List<Diamond> diamonds = find_dimonds_in_map(turnData);
+                    fill_orders(diamonds.size(), diamonds);
+                    sites = find_sites_in_map(turnData);
+                    site_orders = fill_sites_orders(diamonds.size());
+                    integrate_choice_and_site();
+                    LocalSearch(turnData);
+                    generate_actions(turnData, orders.get(best_choice_index));
+                    is_algorithm_finished = true;
+                    System.out.println("algorithm time = " + (new Date().getTime() - algorithm_start_time) + " ms");
+                }
+            }).start();
         }
 
 
-        if (!actions.isEmpty())
-            return actions.poll();
+        if (is_algorithm_finished)
+        {
+            if (!has_rand_action)
+            {
+                if (!actions.isEmpty())
+                    return actions.poll();
+            }
+            else {
+                has_rand_action = false;
+                return Action.LEFT;
 
-        return Action.DOWN.UP;
+            }
+
+        }
+        else {
+            Timer timer = new Timer();
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    time_out_happend = true;
+                    timer.cancel();
+                }
+            }, desicion_time_limit);
+
+
+            while (!time_out_happend)
+            {
+                System.out.print("");
+                if (is_algorithm_finished)
+                {
+                    timer.cancel();
+                    break;
+                }
+            }
+            if (is_algorithm_finished)
+            {
+                if (!has_rand_action)
+                {
+                    if (!actions.isEmpty())
+                        return actions.poll();
+                }
+                else {
+                    has_rand_action = false;
+                    return Action.LEFT;
+
+                }
+            }
+            else
+                return make_rand_action(turnData);
+
+        }
+
+        return make_rand_action(turnData);
+    }
+
+
+    private Action make_rand_action(TurnData turnData)
+    {
+
+        if (has_rand_action)
+        {
+            has_rand_action = false;
+            return Action.LEFT;
+        }
+        else {
+            AgentData agentData = turnData.agentData[0];
+            if (agentData.position.column + 1 < gridSize) {
+                if (turnData.map[agentData.position.row][agentData.position.column + 1] == '*')
+                    return Action.RIGHT;
+            }
+            else
+            {
+                return Action.RIGHT;
+            }
+            if (agentData.position.column - 1 >= 0) {
+                if (turnData.map[agentData.position.row][agentData.position.column - 1] == '*')
+                    return Action.LEFT;
+            }
+            else
+            {
+                return Action.LEFT;
+            }
+            if (agentData.position.row + 1 < gridSize) {
+                if (turnData.map[agentData.position.row + 1][agentData.position.column] == '*')
+                    return Action.DOWN;
+            }
+            else
+            {
+                return Action.DOWN;
+            }
+            if (agentData.position.row - 1 >= 0) {
+                if (turnData.map[agentData.position.row - 1][agentData.position.column] == '*')
+                    return Action.UP;
+            }
+            else
+            {
+                return Action.UP;
+            }
+
+            has_rand_action = true;
+            return Action.RIGHT;
+        }
+
+
     }
 
 
