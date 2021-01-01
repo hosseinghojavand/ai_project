@@ -1,11 +1,14 @@
 package com.ai.project;
 
 import com.ai.project.base.Action;
+import com.ai.project.base.AgentData;
 import com.ai.project.base.BaseAgent;
 import com.ai.project.base.TurnData;
 
+import javax.swing.*;
 import java.io.IOException;
 import java.util.*;
+import java.util.Timer;
 
 public class ExhaustiveSearchAgent extends BaseAgent {
 
@@ -18,13 +21,11 @@ public class ExhaustiveSearchAgent extends BaseAgent {
 
     private List<Site> sites = new ArrayList<>();
 
-
-
-    //public List<AbstractMap.SimpleEntry<List<Diamond> , Integer>> diamind_orders = new ArrayList<>();
-
-    boolean is_startup = true;
-
     int best_choice_index = 0;
+    private boolean time_out_happend = false;
+    boolean is_algorithm_finished = false;
+    private  int desicion_time_limit;
+    private boolean has_rand_action =false;
 
     public ExhaustiveSearchAgent() throws IOException {
         super();
@@ -33,44 +34,141 @@ public class ExhaustiveSearchAgent extends BaseAgent {
     @Override
     public Action doTurn(TurnData turnData) {
 
+        time_out_happend = false;
+        desicion_time_limit =(int)(decisionTimeLimit * 1000);
+        desicion_time_limit -=10;
+
         if (turnData.turnsLeft == maxTurns) {
-            long algorithm_start_time = new Date().getTime();
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    long algorithm_start_time = new Date().getTime();
 
-            List<Diamond> diamonds = find_diamonds_in_map(turnData);
-            sites = find_sites_in_map(turnData);
+                    List<Diamond> diamonds = find_diamonds_in_map(turnData);
+                    sites = find_sites_in_map(turnData);
 
-            fill_diamonds_orders(diamonds.size(), diamonds);
+                    fill_diamonds_orders(diamonds.size(), diamonds);
 
-            site_orders = fill_sites_orders(diamonds.size());
+                    site_orders = fill_sites_orders(diamonds.size());
 
-            best_choice_index = find_best_order(turnData);
-            //System.out.println("site_orders.size = " + site_orders.size());
+                    best_choice_index = find_best_order(turnData);
 
-            /*int indd = 0;
-            for(int i = 0 ; i < diamind_orders.get(best_choice_index).diamonds_list.size() ; i++)
-            {
-                System.out.print(diamind_orders.get(best_choice_index).diamonds_list.get(i).sid);
-                System.out.print("--");
-                System.out.print(site_orders.get(diamind_orders.get(best_choice_index).chosed_home_order_ind).get(indd).row
-                                +"" + site_orders.get(diamind_orders.get(best_choice_index).chosed_home_order_ind).get(indd).column);
-                indd++;
-                System.out.print("--");
+                    generate_actions(turnData , diamind_orders.get(best_choice_index).diamonds_list);
+                    is_algorithm_finished = true;
 
-            }
-            System.out.println("");*/
+                    System.out.println("algorithm time = " + (new Date().getTime() - algorithm_start_time) + " ms");
+                }
+            }).start();
 
-            generate_actions(turnData , diamind_orders.get(best_choice_index).diamonds_list);
-            //generate_actions2(diamind_orders.get(best_choice_index));
-
-
-            System.out.println("algorithm time = " + (new Date().getTime() - algorithm_start_time) + " ms");
         }
 
+        if (is_algorithm_finished)
+        {
+            if (!has_rand_action)
+            {
+                if (!actions.isEmpty())
+                    return actions.poll();
+            }
+            else {
+                has_rand_action = false;
+                return Action.LEFT;
+
+            }
+
+        }
+        else {
+            Timer timer = new Timer();
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    time_out_happend = true;
+                    timer.cancel();
+                }
+            }, desicion_time_limit);
+
+
+            while (!time_out_happend)
+            {
+                System.out.print("");
+                if (is_algorithm_finished)
+                {
+                    timer.cancel();
+                    break;
+                }
+            }
+            if (is_algorithm_finished)
+            {
+                if (!has_rand_action)
+                {
+                    if (!actions.isEmpty())
+                        return actions.poll();
+                }
+                else {
+                    has_rand_action = false;
+                    return Action.LEFT;
+
+                }
+            }
+            else
+                return make_rand_action(turnData);
+
+        }
 
         if (!actions.isEmpty())
             return actions.poll();
 
         return Action.DOWN.UP;
+    }
+
+
+    private Action make_rand_action(TurnData turnData)
+    {
+
+        if (has_rand_action)
+        {
+            has_rand_action = false;
+            return Action.LEFT;
+        }
+        else {
+            AgentData agentData = turnData.agentData[0];
+            if (agentData.position.column + 1 < gridSize) {
+                if (turnData.map[agentData.position.row][agentData.position.column + 1] == '*')
+                    return Action.RIGHT;
+            }
+            else
+            {
+                return Action.RIGHT;
+            }
+            if (agentData.position.column - 1 >= 0) {
+                if (turnData.map[agentData.position.row][agentData.position.column - 1] == '*')
+                    return Action.LEFT;
+            }
+            else
+            {
+                return Action.LEFT;
+            }
+            if (agentData.position.row + 1 < gridSize) {
+                if (turnData.map[agentData.position.row + 1][agentData.position.column] == '*')
+                    return Action.DOWN;
+            }
+            else
+            {
+                return Action.DOWN;
+            }
+            if (agentData.position.row - 1 >= 0) {
+                if (turnData.map[agentData.position.row - 1][agentData.position.column] == '*')
+                    return Action.UP;
+            }
+            else
+            {
+                return Action.UP;
+            }
+
+            has_rand_action = true;
+            return Action.RIGHT;
+        }
+
+
     }
 
 
@@ -426,18 +524,7 @@ public class ExhaustiveSearchAgent extends BaseAgent {
 
     }
 
-    private boolean is_goal(Node node , int mode)
-    {
-        if (mode == DIAMOND)
-            return  node.data == '0' ||
-                    node.data == '1' ||
-                    node.data == '2' ||
-                    node.data == '3' ||
-                    node.data == '4';
 
-        return node.data == 'a';
-
-    }
     private LinkedList<Node> sortFrontier(Queue<Node> frontier) {
 
         Node[] array;
