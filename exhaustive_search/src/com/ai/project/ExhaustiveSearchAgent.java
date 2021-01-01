@@ -114,10 +114,8 @@ public class ExhaustiveSearchAgent extends BaseAgent {
 
         }
 
-        if (!actions.isEmpty())
-            return actions.poll();
 
-        return Action.DOWN.UP;
+        return make_rand_action(turnData);
     }
 
 
