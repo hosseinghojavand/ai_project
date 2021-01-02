@@ -527,7 +527,7 @@ public class LocalSearchAgent extends BaseAgent {
                 }
 
                 if (frontier.size() >0)
-                    sortFrontier(frontier);
+                    frontier = sortFrontier(frontier);
             }
 
 
