@@ -305,8 +305,10 @@ public class ExhaustiveSearchAgent extends BaseAgent {
                         }
                     }
                 }
+                if (frontier.size()>0)
+                    frontier = sortFrontier(frontier);
             }
-            sortFrontier(frontier);
+
 
         }
 
@@ -707,9 +709,11 @@ public class ExhaustiveSearchAgent extends BaseAgent {
                         }
                     }
                 }
+                if (frontier.size() >0)
+                    frontier = sortFrontier(frontier);
             }
 
-            frontier = sortFrontier(frontier);
+
 
         }
 
