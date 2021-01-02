@@ -525,8 +525,11 @@ public class LocalSearchAgent extends BaseAgent {
                         }
                     }
                 }
+
+                if (frontier.size() >0)
+                    sortFrontier(frontier);
             }
-            sortFrontier(frontier);
+
 
         }
 
@@ -742,6 +745,11 @@ public class LocalSearchAgent extends BaseAgent {
         Node[] array;
         array = frontier.toArray(new Node[frontier.size()]);
 
+        if (array.length == 0)
+        {
+            System.out.println("hello");
+        }
+
         Node min = array[0];
         int min_index = 0;
         for (int i = 0; i < frontier.size(); i++) {
@@ -867,9 +875,12 @@ public class LocalSearchAgent extends BaseAgent {
                         }
                     }
                 }
+
+                if(frontier.size() >0)
+                    frontier = sortFrontier(frontier);
             }
 
-            frontier = sortFrontier(frontier);
+
 
         }
 
