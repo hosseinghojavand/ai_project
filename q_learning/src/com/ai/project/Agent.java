@@ -528,12 +528,28 @@ public  class Agent
 
                 thread.start();
 
-                try { Thread.sleep(2000); } catch (Exception e) { }
+                try {
+                    Thread.sleep(2000);
+                } catch (Exception e) {
+                }
+
 
                 String winner = new QLearningAgent().play();
 
-                for (BackUp backUp : backups)
+
+                for (BackUp backUp : backups) {
                     q_table[backUp.agent_row][backUp.agent_column][backUp.turn].node_data[backUp.ind] += episode_score;
+                }
+
+                int ind = 0;
+                /*for (int i =0 ;i < gridSize ; i++)
+                {
+                    for(int j = 0 ; j<gridSize ; j++)
+                    {
+
+                    }
+                }*/
+
 
                 episode_score = 0;
                 backups.clear();
@@ -542,6 +558,9 @@ public  class Agent
                 {
                     EPSILON -=((EPSILON -0.1)/((N_EPISODES*3) /4));
                 }
+
+
+
                 System.out.println("WINNER: " + winner);
 
                 p[0].destroy();

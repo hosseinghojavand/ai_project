@@ -63,4 +63,22 @@ public class Diamond {
         }
     }
 
+    public int get_value()
+    {
+        switch(this.sid)
+        {
+            case GREEN:
+                return 2;
+            case BLUE:
+                return 5;
+            case RED:
+                return 3;
+            case YELLOW:
+                return 1;
+            case GRAY:
+                return 10;
+        }
+        return 0;
+    }
+
 }

@@ -38,6 +38,18 @@ public class Main {
 
             try { Thread.sleep(1000); } catch (Exception e) { }
 
+
+            /*new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        new Agent().play();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }).start();*/
+
             new Thread(new Runnable() {
                 @Override
                 public void run() {
