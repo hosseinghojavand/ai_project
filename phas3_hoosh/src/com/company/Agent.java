@@ -54,8 +54,6 @@ public class Agent extends BaseAgent {
             {
                 if (turnData.agentData[i].name.equals(name))
                 {
-                    System.out.println( "row: "+turnData.agentData[i].position.row +
-                                        "column: "+turnData.agentData[i].position.column);
                     my_agent_id = i;
                     break;
                 }
@@ -76,6 +74,8 @@ public class Agent extends BaseAgent {
         if (actions.isEmpty() && turnData.agentData[my_agent_id].carrying!=null)
         {
             check_for_diamond_proccess(current_goal_diamond);
+
+            //check ygy process
             if (turnData.agentData[my_agent_id].carrying+48 == Diamond.YELLOW)
             {
                 if (ygy_strategy_process ==0)
@@ -89,8 +89,8 @@ public class Agent extends BaseAgent {
             }
 
 
-            int agent_row = turnData.agentData[0].position.row;
-            int agent_column = turnData.agentData[0].position.column;
+            int agent_row = turnData.agentData[my_agent_id].position.row;
+            int agent_column = turnData.agentData[my_agent_id].position.column;
 
             Integer site_row=0 , site_col=0;
             char[][] map = new char[turnData.map.length][turnData.map.length];
@@ -98,7 +98,7 @@ public class Agent extends BaseAgent {
                 for (int j = 0; j < gridSize; j++)
                 {
                     map[m][j] = turnData.map[m][j];
-                    if (map[m][j] == 'a')
+                    if (map[m][j] == (name.charAt(0)+32))
                     {
                         site_row = m;
                         site_col = j;
@@ -300,6 +300,7 @@ public class Agent extends BaseAgent {
 
        return  Action.UP;
     }
+
 
 
     private void sync_diamonds(TurnData turnData)
