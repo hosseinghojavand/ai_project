@@ -4,9 +4,10 @@ import java.io.IOException;
 
 public class Main {
 
-
-
     public static void main(String[] args) {
+
+        boolean plat_with_yours = true;
+
         Thread thread = null;
         final Process[] p = new Process[1];
 
@@ -23,7 +24,10 @@ public class Main {
 
             thread.start();
 
-            try { Thread.sleep(3000); } catch (Exception e) { }
+            try {
+                Thread.sleep(4000);
+            } catch (Exception e) {
+            }
 
             new Thread(new Runnable() {
                 @Override
@@ -36,30 +40,37 @@ public class Main {
                 }
             }).start();
 
-            try { Thread.sleep(1000); } catch (Exception e) { }
+            try {
+                Thread.sleep(1000);
+            } catch (Exception e) {
+            }
 
 
-            /*new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        new Agent().play();
-                    } catch (IOException e) {
-                        e.printStackTrace();
+            if (plat_with_yours) {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            new Agent().play();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     }
-                }
-            }).start();*/
+                }).start();
+            }
+            else {
 
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        new RandomAgent().play();
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            new RandomAgent().play();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     }
-                }
-            }).start();
+                }).start();
+            }
 
 
 

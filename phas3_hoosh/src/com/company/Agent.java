@@ -5,6 +5,7 @@ import com.company.base.BaseAgent;
 import com.company.base.TurnData;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Agent extends BaseAgent {
 
@@ -67,8 +68,16 @@ public class Agent extends BaseAgent {
 
         }
 
-        all_diamonds = find_all_diamonds(turnData);
-        List<Diamond> ygy = is_there_ygy(all_diamonds);
+        List<Diamond> remaing_five_diamonds = new ArrayList<>();
+        List<Diamond> ygy = new ArrayList<>();
+
+        if (actions.isEmpty()) {
+            all_diamonds = find_all_diamonds(turnData);
+            ygy = is_there_ygy(all_diamonds);
+
+            if (ygy.size() == 0)
+                remaing_five_diamonds = is_there_five_diamonds(turnData, all_diamonds);
+        }
 
 
         if (actions.isEmpty() && turnData.agentData[my_agent_id].carrying!=null)
@@ -152,7 +161,7 @@ public class Agent extends BaseAgent {
 
 
             Candidate choosed = new Candidate();
-            choosed.cost = 1500;
+            choosed.cost = Integer.MAX_VALUE;
 
 
             for (Candidate candidate : req_diamonds)
@@ -171,127 +180,190 @@ public class Agent extends BaseAgent {
             }
 
         }
-        else
-        {
-            List<Character> choose_req = new ArrayList<>();
-            List<Character> others = new ArrayList<>();
-            for (Map.Entry<Character,Integer> entry : required.entrySet())
-            {
-                if (entry.getValue() ==1 || entry.getValue() ==2)
-                    choose_req.add(entry.getKey());
-                else if (entry.getValue() >2)
-                    others.add(entry.getKey());
-            }
+        else {
+            if (remaing_five_diamonds.size() > 0) {
 
-            if (choose_req.size() ==0)
-                choose_req = others;
 
-            long algorithm_start_time = new Date().getTime();
+                long algorithm_start_time = new Date().getTime();
 
-            if (choose_req.size()>0) {
+                List<Diamond> grays = new ArrayList<>();
+                for (Diamond diamond: remaing_five_diamonds)
+                    if (diamond.sid == Diamond.GRAY)
+                        grays.add(diamond);
 
                 List<Candidate> req_diamonds = new ArrayList<>();
-
-                for (Character character : choose_req) {
-                    for (Diamond diamond : all_diamonds) {
-                        if (character == diamond.sid) {
-                            req_diamonds.add(new Candidate(diamond, 0));
-                            new Thread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    find_path_to_diamond(false , 0 , diamond, req_diamonds.size() - 1
-                                            , turnData , req_diamonds , my_agent_id);
-                                }
-                            }).start();
-
-                            try {
-                                Thread.sleep(1);
-                            } catch (Exception ignored) {
+                if (grays.size()>0)
+                {
+                    for (Diamond diamond : grays) {
+                        req_diamonds.add(new Candidate(diamond, 0));
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                find_path_to_diamond(false, 0, diamond, req_diamonds.size() - 1, turnData, req_diamonds, my_agent_id);
                             }
-
-                            for (int i = 0 ; i < agentCount ; i++)
-                            {
-                                if (!turnData.agentData[i].name.equals(name))
-                                {
-                                    req_diamonds.get(req_diamonds.size()-1).enemy.add(new Candidate(diamond, 0 , i));
-                                    new Thread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            find_path_to_diamond(true,req_diamonds.get(req_diamonds.size()-1).enemy.size()-1
-                                                    , diamond, req_diamonds.size() - 1, turnData , req_diamonds , my_agent_id);
-                                        }
-                                    }).start();
-
-                                    try {
-                                        Thread.sleep(1);
-                                    } catch (Exception ignored) {
-                                    }
-                                }
-                            }
+                        }).start();
+                        try {
+                            Thread.sleep(1);
+                        } catch (Exception ignored) {
                         }
+
+                    }
+                }
+                else
+                {
+                    for (Diamond diamond : remaing_five_diamonds) {
+                        req_diamonds.add(new Candidate(diamond, 0));
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                find_path_to_diamond(false, 0, diamond, req_diamonds.size() - 1, turnData, req_diamonds, my_agent_id);
+                            }
+                        }).start();
+                        try {
+                            Thread.sleep(1);
+                        } catch (Exception ignored) {
+                        }
+
                     }
                 }
 
-
-                while (is_task_finished < (req_diamonds.size() *agentCount)) {}
-
+                while (is_task_finished < req_diamonds.size()) {
+                }
 
                 is_task_finished = 0;
 
 
                 Candidate choosed = new Candidate();
-                Candidate shortest = new Candidate();
                 choosed.cost = Integer.MAX_VALUE;
 
 
                 for (Candidate candidate : req_diamonds)
-                {
                     if (candidate.cost < choosed.cost)
-                    {
-                        shortest = candidate;
-                        int validator = 0 ;
-                        for(Candidate enemy: candidate.enemy)
-                        {
-                            if (candidate.cost <=enemy.cost-1)
-                                validator++;
-                        }
-                        if (validator == candidate.enemy.size())
-                            choosed = candidate;
+                        choosed = candidate;
 
-                    }
-                    else if(candidate.cost == choosed.cost)
-                    {
-                        if (candidate.diamond.get_value() > choosed.diamond.value)
-                        {
-                            shortest = candidate;
-                            int validator = 0 ;
-                            for(Candidate enemy: candidate.enemy)
-                            {
-                                if (candidate.cost <=enemy.cost-1)
-                                    validator++;
-                            }
-                            if (validator == candidate.enemy.size())
-                                choosed = candidate;
-                        }
-                    }
-                }
+                current_goal_diamond = choosed.diamond;
 
-                if (choosed.cost == Integer.MAX_VALUE) {
-                    current_goal_diamond = shortest.diamond;
-                    fill_actions(shortest.explored_node);
-                }
-                else
-                {
-                    current_goal_diamond = choosed.diamond;
-                    fill_actions(choosed.explored_node);
-                }
+                fill_actions(choosed.explored_node);
 
                 System.out.println("algorithm time = " + (new Date().getTime() - algorithm_start_time) + " ms");
-
 
                 if (actions.size() > 0) {
                     System.out.println("actions got");
                     return actions.poll();
+                }
+
+            }
+            else {
+                List<Character> choose_req = new ArrayList<>();
+                List<Character> others = new ArrayList<>();
+                for (Map.Entry<Character, Integer> entry : required.entrySet()) {
+                    if (entry.getValue() == 1 || entry.getValue() == 2)
+                        choose_req.add(entry.getKey());
+                    else if (entry.getValue() > 2)
+                        others.add(entry.getKey());
+                }
+
+                if (choose_req.size() == 0)
+                    choose_req = others;
+
+                long algorithm_start_time = new Date().getTime();
+
+                if (choose_req.size() > 0) {
+
+                    List<Candidate> req_diamonds = new ArrayList<>();
+
+                    for (Character character : choose_req) {
+                        for (Diamond diamond : all_diamonds) {
+                            if (character == diamond.sid) {
+                                req_diamonds.add(new Candidate(diamond, 0));
+                                new Thread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        find_path_to_diamond(false, 0, diamond, req_diamonds.size() - 1
+                                                , turnData, req_diamonds, my_agent_id);
+                                    }
+                                }).start();
+
+                                try {
+                                    Thread.sleep(1);
+                                } catch (Exception ignored) {
+                                }
+
+                                for (int i = 0; i < agentCount; i++) {
+                                    if (!turnData.agentData[i].name.equals(name)) {
+                                        req_diamonds.get(req_diamonds.size() - 1).enemy.add(new Candidate(diamond, 0, i));
+                                        new Thread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                find_path_to_diamond(true, req_diamonds.get(req_diamonds.size() - 1).enemy.size() - 1
+                                                        , diamond, req_diamonds.size() - 1, turnData, req_diamonds, my_agent_id);
+                                            }
+                                        }).start();
+
+                                        try {
+                                            Thread.sleep(1);
+                                        } catch (Exception ignored) {
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+
+                    while (is_task_finished < (req_diamonds.size() * agentCount)) {
+                    }
+
+
+                    is_task_finished = 0;
+
+
+                    Candidate choosed = new Candidate();
+                    Candidate shortest = new Candidate();
+                    choosed.cost = Integer.MAX_VALUE;
+
+
+                    for (Candidate candidate : req_diamonds) {
+                        if (candidate.cost < choosed.cost) {
+                            shortest = candidate;
+                            int validator = 0;
+                            for (Candidate enemy : candidate.enemy) {
+                                if (candidate.cost <= enemy.cost - 1)
+                                    validator++;
+                            }
+                            if (validator == candidate.enemy.size())
+                                choosed = candidate;
+
+                        } else if (candidate.cost == choosed.cost) {
+                            if (candidate.diamond.get_value() > choosed.diamond.value) {
+                                shortest = candidate;
+                                int validator = 0;
+                                for (Candidate enemy : candidate.enemy) {
+                                    if (candidate.cost <= enemy.cost - 1)
+                                        validator++;
+                                }
+                                if (validator == candidate.enemy.size())
+                                    choosed = candidate;
+                            }
+                            //TODO else needed
+                        }
+                    }
+
+                    if (choosed.cost == Integer.MAX_VALUE) {
+                        current_goal_diamond = shortest.diamond;
+                        fill_actions(shortest.explored_node);
+                    } else {
+                        current_goal_diamond = choosed.diamond;
+                        fill_actions(choosed.explored_node);
+                    }
+
+                    System.out.println("algorithm time = " + (new Date().getTime() - algorithm_start_time) + " ms");
+
+
+                    if (actions.size() > 0) {
+                        System.out.println("actions got");
+                        return actions.poll();
+                    }
                 }
             }
         }
@@ -303,6 +375,7 @@ public class Agent extends BaseAgent {
 
 
 
+
     private void sync_diamonds(TurnData turnData)
     {
         required.clear();
@@ -311,10 +384,7 @@ public class Agent extends BaseAgent {
 
 
         for (int i = 0 ; i <turnData.agentData[my_agent_id].collected.length ; i++ )
-        {
-
             required.put((char)(turnData.agentData[my_agent_id].collected[i]+48) , required.get((char)(turnData.agentData[my_agent_id].collected[i]+48))-1);
-        }
     }
 
 
@@ -337,10 +407,14 @@ public class Agent extends BaseAgent {
 
 
     private void fill_actions(Node node) {
-        if (node.parent.parent != null) {
-            fill_actions(node.parent);
+        if (node!=null) {
+            if (node.parent.parent != null) {
+                fill_actions(node.parent);
+            }
+            actions.add(find_action_to_parent(node));
         }
-        actions.add(find_action_to_parent(node));
+        else
+            System.out.println("node is null");
     }
 
     private Action find_action_to_parent(Node node) {
@@ -680,6 +754,33 @@ public class Agent extends BaseAgent {
         return diamonds;
     }
 
+    private List<Diamond> is_there_five_diamonds(TurnData turnData , List<Diamond> all_diamonds) {
+        List<Diamond> remained_five = new ArrayList<>();
+        Character [] characters = {Diamond.GREEN , Diamond.BLUE , Diamond.RED , Diamond.YELLOW , Diamond.GRAY};
+        List<Character> aval = new ArrayList<>();
+
+        for (int j = 0 ; j <characters.length ; j++) {
+            boolean is_there_one = false;
+            for (int i = 0; i < turnData.agentData[my_agent_id].collected.length; i++) {
+                if (turnData.agentData[my_agent_id].collected[i] +48 == characters[j])
+                {
+                    is_there_one = true;
+                    break;
+                }
+            }
+
+            if (!is_there_one)
+                aval.add(characters[j]);
+        }
+
+        for (int i =0 ; i< aval.size() ; i++)
+            for(int j = 0 ; j< all_diamonds.size() ; j++ )
+                if (all_diamonds.get(j).sid == aval.get(i))
+                    remained_five.add(all_diamonds.get(j));
+
+        return remained_five;
+
+    }
 
     private List<Diamond> is_there_ygy(List<Diamond> diamonds)
     {
