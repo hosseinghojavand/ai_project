@@ -181,7 +181,7 @@ public class Agent extends BaseAgent {
         }
         else {
             if (remaing_five_diamonds.size() > 0) {
-
+                System.out.println("remaing_five_diamonds");
 
                 long algorithm_start_time = new Date().getTime();
 
@@ -253,6 +253,7 @@ public class Agent extends BaseAgent {
 
             }
             else {
+                System.out.println("normal mode");
 
                 List<Diamond> grays = new ArrayList<>();
                 for (Diamond diamond: all_diamonds)
@@ -262,6 +263,7 @@ public class Agent extends BaseAgent {
 
                 if (grays.size()>0)
                 {
+                    System.out.println("gray");
                     long algorithm_start_time = new Date().getTime();
                     List<Candidate> req_diamonds = new ArrayList<>();
                     for (Diamond diamond : grays) {
@@ -303,13 +305,14 @@ public class Agent extends BaseAgent {
                 }
                 else {
 
+                    System.out.println("not gray");
                     List<Character> choose_req = new ArrayList<>();
                     List<Character> others = new ArrayList<>();
                     List<Character> third = new ArrayList<>();
-                    System.out.print("rec: ");
+                    //System.out.print("rec: ");
                     for (Map.Entry<Character, Integer> entry : required.entrySet()) {
                         if (is_in_map(all_diamonds , entry.getKey())) {
-                            System.out.print(entry.getKey() + ":" + entry.getValue() + " -- ");
+                            //System.out.print(entry.getKey() + ":" + entry.getValue() + " -- ");
                             if (entry.getValue() == 0 || entry.getValue() == 1)
                                 choose_req.add(entry.getKey());
                             else if (entry.getValue() > 1)
@@ -319,7 +322,7 @@ public class Agent extends BaseAgent {
                         }
                     }
 
-                    System.out.println("");
+                    //System.out.println("");
 
                     if (choose_req.size() == 0)
                         choose_req = others;
@@ -328,9 +331,9 @@ public class Agent extends BaseAgent {
                         choose_req = third;
 
 
-                    System.out.print("list:");
+                    /*System.out.print("list:");
                     for (int i =0 ; i < choose_req.size() ; i++)
-                        System.out.print(choose_req.get(i) + " - ");
+                        System.out.print(choose_req.get(i) + " - ");*/
 
                     long algorithm_start_time = new Date().getTime();
 
@@ -848,9 +851,20 @@ public class Agent extends BaseAgent {
         }
 
         for (int i =0 ; i< aval.size() ; i++)
+        {
+            boolean is_found = false;
             for(int j = 0 ; j< all_diamonds.size() ; j++ )
+            {
                 if (all_diamonds.get(j).sid == aval.get(i))
+                {
                     remained_five.add(all_diamonds.get(j));
+                    is_found = true;
+                }
+            }
+
+            if (!is_found)
+                return new ArrayList<>();
+        }
 
         return remained_five;
 
