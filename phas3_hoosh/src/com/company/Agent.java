@@ -71,13 +71,12 @@ public class Agent extends BaseAgent {
         List<Diamond> remaing_five_diamonds = new ArrayList<>();
         List<Diamond> ygy = new ArrayList<>();
 
-        if (actions.isEmpty()) {
-            all_diamonds = find_all_diamonds(turnData);
-            ygy = is_there_ygy(all_diamonds);
+        all_diamonds = find_all_diamonds(turnData);
+        ygy = is_there_ygy(all_diamonds);
 
-            if (ygy.size() == 0)
-                remaing_five_diamonds = is_there_five_diamonds(turnData, all_diamonds);
-        }
+        if (ygy.size() == 0)
+            remaing_five_diamonds = is_there_five_diamonds(turnData, all_diamonds);
+
 
 
         if (actions.isEmpty() && turnData.agentData[my_agent_id].carrying!=null)
@@ -306,15 +305,32 @@ public class Agent extends BaseAgent {
 
                     List<Character> choose_req = new ArrayList<>();
                     List<Character> others = new ArrayList<>();
+                    List<Character> third = new ArrayList<>();
+                    System.out.print("rec: ");
                     for (Map.Entry<Character, Integer> entry : required.entrySet()) {
-                        if (entry.getValue() == 0 || entry.getValue() == 1)
-                            choose_req.add(entry.getKey());
-                        else if (entry.getValue() > 1)
-                            others.add(entry.getKey());
+                        if (is_in_map(all_diamonds , entry.getKey())) {
+                            System.out.print(entry.getKey() + ":" + entry.getValue() + " -- ");
+                            if (entry.getValue() == 0 || entry.getValue() == 1)
+                                choose_req.add(entry.getKey());
+                            else if (entry.getValue() > 1)
+                                others.add(entry.getKey());
+                            else
+                                third.add(entry.getKey());
+                        }
                     }
+
+                    System.out.println("");
 
                     if (choose_req.size() == 0)
                         choose_req = others;
+
+                    if (choose_req.size() ==0)
+                        choose_req = third;
+
+
+                    System.out.print("list:");
+                    for (int i =0 ; i < choose_req.size() ; i++)
+                        System.out.print(choose_req.get(i) + " - ");
 
                     long algorithm_start_time = new Date().getTime();
 
@@ -424,7 +440,14 @@ public class Agent extends BaseAgent {
        return  Action.UP;
     }
 
+    private boolean is_in_map(List<Diamond> all_diamonds, Character diamond) {
 
+        for (Diamond all_diamond : all_diamonds)
+            if (all_diamond.sid == diamond)
+                return true;
+
+        return false;
+    }
 
 
     private void sync_diamonds(TurnData turnData)

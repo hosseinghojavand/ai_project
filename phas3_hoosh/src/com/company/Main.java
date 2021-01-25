@@ -25,7 +25,7 @@ public class Main {
             thread.start();
 
             try {
-                Thread.sleep(4000);
+                Thread.sleep(5000);
             } catch (Exception e) {
             }
 
