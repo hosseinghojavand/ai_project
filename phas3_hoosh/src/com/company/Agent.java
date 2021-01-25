@@ -176,7 +176,7 @@ public class Agent extends BaseAgent {
                 if (target_agent != -1)
                 {
                     actions.clear();
-                    if (turnData.agentData[my_agent_id].position.row -1 != row &&
+                    if (turnData.agentData[my_agent_id].position.row -1 >=0 && turnData.agentData[my_agent_id].position.row -1 != row &&
                             turnData.agentData[my_agent_id].position.column != col)
                     {
                         //up
@@ -185,7 +185,7 @@ public class Agent extends BaseAgent {
                             return Action.UP;
                         }
                     }
-                    if (turnData.agentData[my_agent_id].position.row +1 != row &&
+                    if (turnData.agentData[my_agent_id].position.row +1 <gridSize && turnData.agentData[my_agent_id].position.row +1 != row &&
                             turnData.agentData[my_agent_id].position.column != col)
                     {
                         //up
@@ -194,7 +194,7 @@ public class Agent extends BaseAgent {
                             return Action.DOWN;
                         }
                     }
-                    if (turnData.agentData[my_agent_id].position.row != row &&
+                    if (turnData.agentData[my_agent_id].position.column-1 >=0 && turnData.agentData[my_agent_id].position.row != row &&
                             turnData.agentData[my_agent_id].position.column-1 != col)
                     {
                         //up
@@ -203,7 +203,7 @@ public class Agent extends BaseAgent {
                             return Action.LEFT;
                         }
                     }
-                    if (turnData.agentData[my_agent_id].position.row != row &&
+                    if (turnData.agentData[my_agent_id].position.column+1 <gridSize && turnData.agentData[my_agent_id].position.row != row &&
                             turnData.agentData[my_agent_id].position.column+1 != col)
                     {
                         //up
@@ -220,6 +220,75 @@ public class Agent extends BaseAgent {
             }
         }
 
+
+        Diamond neigh_diamond = new Diamond();
+        //check env
+        if (actions.isEmpty() && turnData.agentData[my_agent_id].carrying==null)
+        {
+            int stock_count = 0;
+
+            if (turnData.agentData[my_agent_id].position.row -1 >= 0)
+            {
+                if (turnData.map[turnData.agentData[my_agent_id].position.row-1][turnData.agentData[my_agent_id].position.column] != '.')
+                {
+                    stock_count ++;
+                    neigh_diamond = is_diamond(turnData,turnData.agentData[my_agent_id].position.row-1,turnData.agentData[my_agent_id].position.column);
+                }
+            }
+            if (turnData.agentData[my_agent_id].position.row +1 <gridSize)
+            {
+                if (turnData.map[turnData.agentData[my_agent_id].position.row+1][turnData.agentData[my_agent_id].position.column] != '.')
+                {
+                    stock_count ++;
+                    neigh_diamond = is_diamond(turnData,turnData.agentData[my_agent_id].position.row+1,turnData.agentData[my_agent_id].position.column);
+                }
+            }
+            if (turnData.agentData[my_agent_id].position.column -1 >= 0)
+            {
+                if (turnData.map[turnData.agentData[my_agent_id].position.row][turnData.agentData[my_agent_id].position.column - 1] != '.')
+                {
+                    stock_count ++;
+                    neigh_diamond = is_diamond(turnData,turnData.agentData[my_agent_id].position.row,turnData.agentData[my_agent_id].position.column-1);
+                }
+            }
+            if (turnData.agentData[my_agent_id].position.column +1 <gridSize)
+            {
+                if (turnData.map[turnData.agentData[my_agent_id].position.row][turnData.agentData[my_agent_id].position.column +1] != '.')
+                {
+                    stock_count ++;
+                    neigh_diamond = is_diamond(turnData,turnData.agentData[my_agent_id].position.row,turnData.agentData[my_agent_id].position.column+1);
+                }
+            }
+
+
+            if (stock_count ==4)
+            {
+                if (neigh_diamond!=null)
+                {
+                    List<Candidate> req_diamonds = new ArrayList<>();
+                    req_diamonds.add(new Candidate(neigh_diamond, 0));
+                    find_path_to_diamond(false , 0 , neigh_diamond, req_diamonds.size() - 1, turnData , req_diamonds , my_agent_id);
+
+                    Candidate choosed = new Candidate();
+                    choosed.cost = Integer.MAX_VALUE;
+
+
+                    for (Candidate candidate : req_diamonds)
+                        if (candidate.cost < choosed.cost)
+                            choosed = candidate;
+
+                    current_goal_diamond = choosed.diamond;
+
+                    fill_actions(choosed.explored_node);
+
+                    if (actions.size() > 0) {
+                        System.out.println("actions got");
+                        return actions.poll();
+                    }
+                }
+            }
+
+        }
 
         if (ygy.size() >0 && !is_ygy_completed) {
 
@@ -535,6 +604,24 @@ public class Agent extends BaseAgent {
         return  Action.UP;
     }
 
+    private Diamond is_diamond(TurnData turnData , int row , int col) {
+        char c = turnData.map[row][col];
+        if (c == Diamond.GREEN ||
+                c == Diamond.BLUE||
+                c == Diamond.YELLOW ||
+                c == Diamond.GRAY ||
+                c == Diamond.RED)
+        {
+            for (Diamond diamond : all_diamonds)
+            {
+                if (diamond.row == row && diamond.column == col)
+                    return diamond;
+            }
+        }
+
+        return null;
+    }
+
     private boolean check_if_diamond_exist_any_more(TurnData turnData, Diamond current_goal_diamond) {
         return (turnData.map[current_goal_diamond.row][current_goal_diamond.column] == current_goal_diamond.sid);
     }
@@ -798,7 +885,6 @@ public class Agent extends BaseAgent {
     }
 
 
-    //TODO: complete check_can_go
     private boolean check_can_go(char data , char goal)
     {
         if (goal == (char)(name.charAt(0)+32))
