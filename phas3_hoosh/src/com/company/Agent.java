@@ -235,6 +235,10 @@ public class Agent extends BaseAgent {
                     neigh_diamond = is_diamond(turnData,turnData.agentData[my_agent_id].position.row-1,turnData.agentData[my_agent_id].position.column);
                 }
             }
+            else
+            {
+                stock_count ++;
+            }
             if (turnData.agentData[my_agent_id].position.row +1 <gridSize)
             {
                 if (turnData.map[turnData.agentData[my_agent_id].position.row+1][turnData.agentData[my_agent_id].position.column] != '.')
@@ -242,6 +246,10 @@ public class Agent extends BaseAgent {
                     stock_count ++;
                     neigh_diamond = is_diamond(turnData,turnData.agentData[my_agent_id].position.row+1,turnData.agentData[my_agent_id].position.column);
                 }
+            }
+            else
+            {
+                stock_count ++;
             }
             if (turnData.agentData[my_agent_id].position.column -1 >= 0)
             {
@@ -251,6 +259,10 @@ public class Agent extends BaseAgent {
                     neigh_diamond = is_diamond(turnData,turnData.agentData[my_agent_id].position.row,turnData.agentData[my_agent_id].position.column-1);
                 }
             }
+            else
+            {
+                stock_count ++;
+            }
             if (turnData.agentData[my_agent_id].position.column +1 <gridSize)
             {
                 if (turnData.map[turnData.agentData[my_agent_id].position.row][turnData.agentData[my_agent_id].position.column +1] != '.')
@@ -258,6 +270,10 @@ public class Agent extends BaseAgent {
                     stock_count ++;
                     neigh_diamond = is_diamond(turnData,turnData.agentData[my_agent_id].position.row,turnData.agentData[my_agent_id].position.column+1);
                 }
+            }
+            else
+            {
+                stock_count ++;
             }
 
 
