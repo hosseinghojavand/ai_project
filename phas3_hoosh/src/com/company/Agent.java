@@ -256,7 +256,7 @@ public class Agent extends BaseAgent {
             else {
 
                 List<Diamond> grays = new ArrayList<>();
-                for (Diamond diamond: remaing_five_diamonds)
+                for (Diamond diamond: all_diamonds)
                     if (diamond.sid == Diamond.GRAY)
                         grays.add(diamond);
 
