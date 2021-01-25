@@ -6,7 +6,7 @@ public class Main {
 
     public static void main(String[] args) {
 
-        boolean plat_with_yours = true;
+        boolean play_with_yours = false;
 
         Thread thread = null;
         final Process[] p = new Process[1];
@@ -46,7 +46,7 @@ public class Main {
             }
 
 
-            if (plat_with_yours) {
+            if (play_with_yours) {
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
