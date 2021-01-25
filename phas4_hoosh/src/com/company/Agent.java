@@ -591,7 +591,6 @@ public class Agent extends BaseAgent {
                                     if (validator == candidate.enemy.size())
                                         choosed = candidate;
                                 }
-                                //TODO else needed
                             }
                         }
 
