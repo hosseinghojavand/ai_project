@@ -125,17 +125,98 @@ public class Agent extends BaseAgent {
 
         if (!actions.isEmpty())
         {
-            if (turnData.agentData[my_agent_id].carrying != null)
-            {
-                //going for home
-                return actions.poll();
-            }
-            else {
+            boolean can_go = true;
+            if (turnData.agentData[my_agent_id].carrying == null){
                 //going toward diamond
-                if (check_if_diamond_exist_any_more(turnData, current_goal_diamond))
-                    return actions.poll();
-                else
+                if (!check_if_diamond_exist_any_more(turnData, current_goal_diamond)) {
                     actions.clear();
+                    can_go = false;
+                }
+            }
+
+            if (can_go)
+            {
+                Action action = actions.poll();
+
+                int row = 0 , col = 0;
+                switch (action)
+                {
+                    case UP:
+                        row = turnData.agentData[my_agent_id].position.row - 1;
+                        col = turnData.agentData[my_agent_id].position.column;
+                        break;
+                    case DOWN:
+                        row = turnData.agentData[my_agent_id].position.row + 1;
+                        col = turnData.agentData[my_agent_id].position.column;
+                        break;
+                    case LEFT:
+                        row = turnData.agentData[my_agent_id].position.row;
+                        col = turnData.agentData[my_agent_id].position.column -1 ;
+                        break;
+                    case RIGHT:
+                        row = turnData.agentData[my_agent_id].position.row;
+                        col = turnData.agentData[my_agent_id].position.column + 1;
+                        break;
+                }
+
+                int target_agent = -1;
+                for (int i = 0 ; i <agentCount ; i++)
+                {
+                    if (!turnData.agentData[i].name.equals(name))
+                    {
+                        if (turnData.agentData[i].position.row == row &&
+                                turnData.agentData[i].position.column == col )
+                        {
+                            target_agent = i;
+                            break;
+                        }
+                    }
+                }
+
+                if (target_agent != -1)
+                {
+                    actions.clear();
+                    if (turnData.agentData[my_agent_id].position.row -1 != row &&
+                            turnData.agentData[my_agent_id].position.column != col)
+                    {
+                        //up
+                        if (turnData.map[turnData.agentData[my_agent_id].position.row -1][turnData.agentData[my_agent_id].position.column]=='.')
+                        {
+                            return Action.UP;
+                        }
+                    }
+                    if (turnData.agentData[my_agent_id].position.row +1 != row &&
+                            turnData.agentData[my_agent_id].position.column != col)
+                    {
+                        //up
+                        if (turnData.map[turnData.agentData[my_agent_id].position.row +1][turnData.agentData[my_agent_id].position.column]=='.')
+                        {
+                            return Action.DOWN;
+                        }
+                    }
+                    if (turnData.agentData[my_agent_id].position.row != row &&
+                            turnData.agentData[my_agent_id].position.column-1 != col)
+                    {
+                        //up
+                        if (turnData.map[turnData.agentData[my_agent_id].position.row][turnData.agentData[my_agent_id].position.column-1]=='.')
+                        {
+                            return Action.LEFT;
+                        }
+                    }
+                    if (turnData.agentData[my_agent_id].position.row != row &&
+                            turnData.agentData[my_agent_id].position.column+1 != col)
+                    {
+                        //up
+                        if (turnData.map[turnData.agentData[my_agent_id].position.row][turnData.agentData[my_agent_id].position.column+1]=='.')
+                        {
+                            return Action.RIGHT;
+                        }
+                    }
+                }
+
+
+
+                return action;
             }
         }
 
