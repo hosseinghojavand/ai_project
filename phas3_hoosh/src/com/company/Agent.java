@@ -125,7 +125,18 @@ public class Agent extends BaseAgent {
 
         if (!actions.isEmpty())
         {
-            return actions.poll();
+            if (turnData.agentData[my_agent_id].carrying != null)
+            {
+                //going for home
+                return actions.poll();
+            }
+            else {
+                //going toward diamond
+                if (check_if_diamond_exist_any_more(turnData, current_goal_diamond))
+                    return actions.poll();
+                else
+                    actions.clear();
+            }
         }
 
 
@@ -441,6 +452,10 @@ public class Agent extends BaseAgent {
 
 
        return  Action.UP;
+    }
+
+    private boolean check_if_diamond_exist_any_more(TurnData turnData, Diamond current_goal_diamond) {
+        return (turnData.map[current_goal_diamond.row][current_goal_diamond.column] == current_goal_diamond.sid);
     }
 
     private boolean is_in_map(List<Diamond> all_diamonds, Character diamond) {

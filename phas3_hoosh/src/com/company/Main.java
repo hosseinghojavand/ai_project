@@ -6,7 +6,7 @@ public class Main {
 
     public static void main(String[] args) {
 
-        boolean play_with_yours = false;
+        boolean play_with_yours = true;
 
         Thread thread = null;
         final Process[] p = new Process[1];
