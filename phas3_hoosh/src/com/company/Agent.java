@@ -451,7 +451,7 @@ public class Agent extends BaseAgent {
 
 
 
-       return  Action.UP;
+        return  Action.UP;
     }
 
     private boolean check_if_diamond_exist_any_more(TurnData turnData, Diamond current_goal_diamond) {
@@ -500,10 +500,14 @@ public class Agent extends BaseAgent {
 
     private void fill_actions(Node node) {
         if (node!=null) {
-            if (node.parent.parent != null) {
-                fill_actions(node.parent);
+            if (node.parent!=null) {
+                if (node.parent.parent != null) {
+                    fill_actions(node.parent);
+                }
+                actions.add(find_action_to_parent(node));
             }
-            actions.add(find_action_to_parent(node));
+            else
+                System.out.println("node.parent is null");
         }
         else
             System.out.println("node is null");
@@ -536,13 +540,28 @@ public class Agent extends BaseAgent {
 
         if (is_enemy)
         {
-            req_diamonds.get(ind).enemy.get(enemy_id).cost = node.hoop;
-            req_diamonds.get(ind).enemy.get(enemy_id).explored_node = node;
+            if(ind < req_diamonds.size() && ind >= 0) {
+                if (enemy_id >= 0 && enemy_id < req_diamonds.get(ind).enemy.size())
+                {
+                    req_diamonds.get(ind).enemy.get(enemy_id).cost = node.hoop;
+                    req_diamonds.get(ind).enemy.get(enemy_id).explored_node = node;
+                }
+                else
+                {
+                    req_diamonds.get(ind).enemy.get(enemy_id).cost = Integer.MAX_VALUE;
+                }
+            }
         }
         else {
 
-            req_diamonds.get(ind).cost = node.hoop;
-            req_diamonds.get(ind).explored_node = node;
+            if(ind < req_diamonds.size() && ind >= 0) {
+                req_diamonds.get(ind).cost = node.hoop;
+                req_diamonds.get(ind).explored_node = node;
+            }
+            else
+            {
+                req_diamonds.get(ind).cost = Integer.MAX_VALUE;
+            }
         }
         is_task_finished++;
     }
@@ -836,7 +855,7 @@ public class Agent extends BaseAgent {
                         turnData.map[i][j] == Diamond.BLUE  ||
                         turnData.map[i][j] == Diamond.RED   ||
                         turnData.map[i][j] == Diamond.GRAY
-                    )
+                )
                 {
                     Diamond diamond = new Diamond(diamonds.size() , turnData.map[i][j],i,j);
                     diamonds.add(diamond);
@@ -892,34 +911,37 @@ public class Agent extends BaseAgent {
         int g_count = 0;
 
         for (int i = 0; i < diamonds.size(); i++) {
-                if (diamonds.get(i).sid == Diamond.YELLOW) {
-                    y_count ++;
-                    Diamond diamond = new Diamond(ygy.size() , Diamond.YELLOW , diamonds.get(i).row, diamonds.get(i).column);
-                    ygy.add(diamond);
-                }
-                else if (diamonds.get(i).sid == Diamond.GREEN)
-                {
-                    g_count ++;
-                    Diamond diamond = new Diamond(ygy.size() , Diamond.GREEN , diamonds.get(i).row, diamonds.get(i).column);
-                    ygy.add(diamond);
-                }
+            if (diamonds.get(i).sid == Diamond.YELLOW) {
+                y_count ++;
+                Diamond diamond = new Diamond(ygy.size() , Diamond.YELLOW , diamonds.get(i).row, diamonds.get(i).column);
+                ygy.add(diamond);
+            }
+            else if (diamonds.get(i).sid == Diamond.GREEN)
+            {
+                g_count ++;
+                Diamond diamond = new Diamond(ygy.size() , Diamond.GREEN , diamonds.get(i).row, diamonds.get(i).column);
+                ygy.add(diamond);
+            }
         }
-        if (ygy_strategy_process ==0) {
-            if (y_count >= 2 && g_count >= 1)
-                return ygy;
-        }
-        else if (ygy_strategy_process ==1)
-        {
-            if (y_count >= 1 && g_count >= 1)
-                return ygy;
-        }
-        else if (ygy_strategy_process ==2)
-        {
-            if (y_count >= 1)
-                return ygy;
+
+        if(!is_ygy_completed) {
+
+            if (ygy_strategy_process == 0) {
+                if (y_count >= 2 && g_count >= 1)
+                    return ygy;
+            } else if (ygy_strategy_process == 1) {
+                if (y_count >= 1 && g_count >= 1)
+                    return ygy;
+            } else if (ygy_strategy_process == 2) {
+                if (y_count >= 1)
+                    return ygy;
+            }
         }
 
         return  new ArrayList<>();
+
+
+
 
 
     }
